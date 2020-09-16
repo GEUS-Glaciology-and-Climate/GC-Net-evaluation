@@ -46,34 +46,37 @@ df_interpol = df_all.interpolate(method='time')
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
 
 
-#%% 
 varname1 =  ['fsus', 'fsds', 'fsus_adjusted','fsds_adjusted','alb']
 varname2 =  ['ShortwaveRadiationUpWm2', 'ShortwaveRadiationDownWm2',
              'ShortwaveRadiationUpWm2', 'ShortwaveRadiationDownWm2','Albedo']
 
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_SWrad')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_SWrad')
 
 varname1 =  ['ta_tc1','ta_tc2','ta_cs1','ta_cs2']
 varname2 =  ['AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_temp')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_temp')
 
 varname1 =  ['rh1','rh2','ps']
 varname2 =  ['RelativeHumidity', 'RelativeHumidity', 'AirPressurehPa']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_rh_pres')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_rh_pres')
 
 varname1 =  ['wspd1','wspd2','wdir1','wdir2']
 varname2 =  [ 'WindSpeedms', 'WindSpeedms','WindDirectiond','WindDirectiond']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_wind')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_wind')
 
 
 #%% Comparison at EastGRIP
 # Loading gc-net data
-path_gc = '../AWS_Processing/Input/GCnet/20190501_jaws/'
-data_GCnet = readtable(".\Input\GCnet\Additional files\CR1000_EGRIP_GC-Net_Table046.dat", opts);
-
+path_gc = 'Input/CR1000_EGRIP_GC-Net_Table046.dat'
 station = 'EGRIP'
-station_id = 8
+station_id = ''
+df_gc = pd.read_csv(path_gc, skiprows=[0,2,3,4])
 
+df_gc=df_gc.reset_index()
+data_GCnet.time = datenum(data_GCnet.TIMESTAMP,'yyyy-mm-dd HH:MM:SS');
+data_GCnet.AirPressurehPa = data_GCnet.pressure_Avg+300;
+data_GCnet.AirPressurehPa(data_GCnet.AirPressurehPa<690) = NaN;
+    
 filename = path_gc + str(station_id).zfill(2) + 'c.dat_Req1957.nc'
 ds = xr.open_dataset(filename)
 df_gc = ds.to_dataframe()

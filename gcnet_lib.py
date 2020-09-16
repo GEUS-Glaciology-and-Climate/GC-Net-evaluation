@@ -52,9 +52,9 @@ def plot_comp(df_all, df_interpol, varname1, varname2, figure_name):
         ax[i, j].plot(df_interpol.index, df_interpol[varname1[i]],
                       'bx:',label= varname1[i] + ' after interp')
         ax[i, j].plot(df_all.index, df_all[varname2[i]],
-                      'go--',label=varname2[i] + ' before')
+                      'ro--',label=varname2[i] + ' before')
         ax[i, j].plot(df_interpol.index, df_interpol[varname2[i]],
-                      'gx:',label=varname2[i] + ' after interp')
+                      'rx:',label=varname2[i] + ' after interp')
         ax[i, j].legend()
         
         x=df_interpol[varname1[i]].values
