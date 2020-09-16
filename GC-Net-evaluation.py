@@ -68,31 +68,80 @@ gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_wind')
 #%% Comparison at EastGRIP
 # Loading gc-net data
 path_gc = 'Input/CR1000_EGRIP_GC-Net_Table046.dat'
-station = 'EGRIP'
+station = 'EGP'
 station_id = ''
 df_gc = pd.read_csv(path_gc, skiprows=[0,2,3,4])
 
-df_gc=df_gc.reset_index()
-data_GCnet.time = datenum(data_GCnet.TIMESTAMP,'yyyy-mm-dd HH:MM:SS');
-data_GCnet.AirPressurehPa = data_GCnet.pressure_Avg+300;
-data_GCnet.AirPressurehPa(data_GCnet.AirPressurehPa<690) = NaN;
+df_gc['time'] = [datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S') for date in df_gc.TIMESTAMP.values] 
+# df_gc.AirPressurehPa = df_gc.pressure_Avg+300;
+# df_gc.AirPressurehPa(df_gc.AirPressurehPa<690) = NaN;
     
-filename = path_gc + str(station_id).zfill(2) + 'c.dat_Req1957.nc'
-ds = xr.open_dataset(filename)
-df_gc = ds.to_dataframe()
-df_gc=df_gc.reset_index()
+# loading data from PROMICE
+path_promice = '../AWS_Processing/Input/PROMICE/EGP_hour_v03.txt'
+df_egp = pd.read_csv(path_promice,delim_whitespace=True)
+df_egp['time'] = df_egp.Year * np.nan
 
-# loading data from U. Calgary
-path_ucalg = '../SAFIRE model/Input/Weather data/data_DYE-2_Samira_hour.txt'
-df_samira = pd.read_csv(path_ucalg,delim_whitespace=True)
-df_samira['timestamp'] = df_samira.time
-
-for i, y in enumerate(df_samira.Year.values):
-    df_samira.time[i] = datetime.datetime(int(y), 1, 1)   + datetime.timedelta( days = df_samira.DayOfYear.values[i] - 1, hours = df_samira.HourOfDayUTC.values[i]-1) 
+for i, y in enumerate(df_egp.Year.values):
+    df_egp.time[i] = datetime.datetime(int(y), df_egp['MonthOfYear'].values[i], df_egp['DayOfMonth'].values[i],df_egp['HourOfDay(UTC)'].values[i])
 
 #set invalid values (-999) to nan 
-df_samira[df_samira==-999.0]=np.nan
+df_egp[df_egp==-999.0]=np.nan
 
 # selecting overlapping data
-df_gc = df_gc.loc[df_gc.time>=df_samira['time'][0]]
-df_gc = df_gc.loc[df_gc.time<=df_samira['time'].values[-1]]
+df_gc = df_gc.loc[df_gc.time>=df_egp['time'][0]]
+df_gc = df_gc.loc[df_gc.time<=df_egp['time'].values[-1]]
+
+# joining datasets
+df_all = pd.concat([df_gc, df_egp], axis = 0).sort_values(by='time')
+df_all = df_all.set_index('time')
+# df_all['Albedo'] = df_all['ShortwaveRadiationUpWm2'] / df_all['ShortwaveRadiationDownWm2']
+df_interpol = df_all.interpolate(method='time')
+df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
+
+# df_gc.columns
+# Out[151]: 
+# Index(['TIMESTAMP', 'RECORD', 'LoggerID', 'Year', 'Day_of_Year', 'Hour',
+#        'sw_in_Avg', 'sw_ref_Avg', 'tc_air_Avg(1)', 'tc_air_Avg(2)',
+#        't_air_Avg(1)', 't_air_Avg(2)', 'rh_Avg(1)', 'rh_Avg(2)', 'U_Avg(1)',
+#        'U_Avg(2)', 'Dir_Avg(1)', 'Dir_Avg(2)', 'pressure_Avg', 'SD_1_Avg',
+#        'SD_2_Avg', 'sw_in_Max', 'sw_in_Std', 'tc_air_Max(1)', 'tc_air_Max(2)',
+#        'tc_air_Min(1)', 'tc_air_Min(2)', 'U_Max(1)', 'U_Max(2)', 'U_Std(1)',
+#        'U_Std(2)', 'TRef_Avg', 'Battery', 'time'],
+#       dtype='object')
+# df_egp.columns
+# Out[152]: 
+# Index(['Year', 'MonthOfYear', 'DayOfMonth', 'HourOfDay(UTC)', 'DayOfYear',
+#        'DayOfCentury', 'AirPressure(hPa)', 'AirTemperature(C)',
+#        'AirTemperatureHygroClip(C)', 'RelativeHumidity(%)',
+#        'SpecificHumidity(g/kg)', 'WindSpeed(m/s)', 'WindDirection(d)',
+#        'SensibleHeatFlux(W/m2)', 'LatentHeatFlux(W/m2)',
+#        'ShortwaveRadiationDown(W/m2)', 'ShortwaveRadiationDown_Cor(W/m2)',
+#        'ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationUp_Cor(W/m2)',
+#        'Albedo_theta<70d', 'LongwaveRadiationDown(W/m2)',
+#        'LongwaveRadiationUp(W/m2)', 'CloudCover', 'SurfaceTemperature(C)',
+#        'HeightSensorBoom(m)', 'HeightStakes(m)', 'DepthPressureTransducer(m)',
+#        'DepthPressureTransducer_Cor(m)', 'IceTemperature1(C)',
+#        'IceTemperature2(C)', 'IceTemperature3(C)', 'IceTemperature4(C)',
+#        'IceTemperature5(C)', 'IceTemperature6(C)', 'IceTemperature7(C)',
+#        'IceTemperature8(C)', 'TiltToEast(d)', 'TiltToNorth(d)',
+#        'TimeGPS(hhmmssUTC)', 'LatitudeGPS(degN)', 'LongitudeGPS(degW)',
+#        'ElevationGPS(m)', 'HorDilOfPrecGPS', 'LoggerTemperature(C)',
+#        'FanCurrent(mA)', 'BatteryVoltage(V)', 'time'],
+#       dtype='object')
+#%% Plotting
+varname1 =  ['tc_air_Avg(1)', 'tc_air_Avg(2)', 't_air_Avg(1)','t_air_Avg(2)']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTemperature(C)']
+
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_temp')
+
+varname1 =  ['rh_Avg(1)', 'rh_Avg(2)','pressure_Avg']
+varname2 =  ['RelativeHumidity(%)','RelativeHumidity(%)','AirPressure(hPa)']
+
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_rh_pres')
+
+
+varname1 =  [ 'U_Avg(1)',  'U_Avg(2)', 'Dir_Avg(1)', 'Dir_Avg(2)']
+varname2 =  ['WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
+
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, station+'_rh_pres')
+
