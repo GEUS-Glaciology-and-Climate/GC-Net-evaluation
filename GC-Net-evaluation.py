@@ -59,17 +59,19 @@ gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_temp')
 
 varname1 =  ['rh1','rh2','ps']
 varname2 =  ['RelativeHumidity', 'RelativeHumidity', 'AirPressurehPa']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_temp')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_rh_pres')
 
 varname1 =  ['wspd1','wspd2','wdir1','wdir2']
 varname2 =  [ 'WindSpeedms', 'WindSpeedms','WindDirectiond','WindDirectiond']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_temp')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2, 'dye-2_wind')
 
 
 #%% Comparison at EastGRIP
 # Loading gc-net data
 path_gc = '../AWS_Processing/Input/GCnet/20190501_jaws/'
-station = 'Dye-2'
+data_GCnet = readtable(".\Input\GCnet\Additional files\CR1000_EGRIP_GC-Net_Table046.dat", opts);
+
+station = 'EGRIP'
 station_id = 8
 
 filename = path_gc + str(station_id).zfill(2) + 'c.dat_Req1957.nc'
