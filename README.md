@@ -5,7 +5,6 @@ Effect of sampling choices and impact of uncertainty on surface energy budget ca
 
 B.Vandecrux, N. Karlson, J. E. Box
 
-https://docs.google.com/document/d/1ai-kZ3vINvxbwh3QhLbJ-KfsxudeVS2Nfo-so8qUTM0/edit?usp=sharing
  
 
 # Dye-2
