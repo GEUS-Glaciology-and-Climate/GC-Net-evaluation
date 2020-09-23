@@ -78,7 +78,7 @@ def plot_comp(df_all, df_interpol, varname1, varname2,txt2, figure_name):
         ax[i, j].set_xlabel(varname1[i]+ ' GC-Net')
         ax[i, j].set_ylabel(varname2[i] + txt2)
         ax[i, j].set_aspect('equal')
-    fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=300)
+    fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
     
 #%% 
 # def tab_comp(df_all, df_interpol, varname1, varname2, figure_name):

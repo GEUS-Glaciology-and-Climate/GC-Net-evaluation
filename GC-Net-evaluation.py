@@ -111,7 +111,7 @@ df_all['SpecHum'] = gnl.RH2SpecHum(df_all['RelativeHumidity(%)'] ,
 df_all.pressure_Avg = df_all.pressure_Avg+300
 df_all.pressure_Avg.loc[df_all.pressure_Avg<690] = np.nan
 df_all['AirPressure(hPa)'].loc[df_all['AirPressure(hPa)']>750] = np.nan
-df_all['Dir_Avg(1)']=180-df_all['Dir_Avg(1)']
+df_all['Dir_Avg(1)']=360-df_all['Dir_Avg(1)']
     
 df_interpol = df_all.interpolate(method='time')
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
