@@ -112,27 +112,39 @@ df_all.pressure_Avg = df_all.pressure_Avg+300
 df_all.pressure_Avg.loc[df_all.pressure_Avg<690] = np.nan
 df_all['AirPressure(hPa)'].loc[df_all['AirPressure(hPa)']>750] = np.nan
 df_all['Dir_Avg(1)']=360-df_all['Dir_Avg(1)']
-    
+
 df_interpol = df_all.interpolate(method='time')
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
+df_interpol['t_air_Avg(1)'].loc[df_interpol['t_air_Avg(1)']<=-40] = np.nan
+df_interpol['t_air_Avg(2)'].loc[df_interpol['t_air_Avg(2)']<=-40] = np.nan
 
 # %% Plotting
 varname1 =  ['tc_air_Avg(1)', 'tc_air_Avg(2)', 't_air_Avg(1)','t_air_Avg(2)']
 varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTemperature(C)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'PROMICE', station+'_temp')
+gnl.day_night_plot(df_all, df_interpol, varname1, varname2,station+'_temp_violin')
 
 varname1 =  ['rh_Avg(1)', 'rh_Avg(2)','SpecificHumidity(g/kg)', 'pressure_Avg']
 varname2 =  ['RelativeHumidity_wrt','RelativeHumidity_wrt','SpecHum', 'AirPressure(hPa)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'PROMICE', station+'_rh_pres')
-
+gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_rh_pres_violin')
 
 varname1 =  [ 'U_Avg(1)',  'U_Avg(2)', 'Dir_Avg(1)', 'Dir_Avg(2)']
 varname2 =  ['WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'PROMICE', station+'_wind')
+gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_wind_violin')
 
-#%% making tables
+#%% making day_night_plot
 
+varname1 =  ['tc_air_Avg(1)', 'tc_air_Avg(2)', 't_air_Avg(1)','t_air_Avg(2)','rh_Avg(1)',
+             'rh_Avg(2)','SpecificHumidity(g/kg)', 'pressure_Avg', 'U_Avg(1)',  'U_Avg(2)',
+             'Dir_Avg(1)', 'Dir_Avg(2)']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTemperature(C)',
+             'RelativeHumidity_wrt','RelativeHumidity_wrt','SpecHum', 'AirPressure(hPa)',
+             'WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
+
+gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all')
 

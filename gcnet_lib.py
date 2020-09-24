@@ -16,6 +16,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import datetime
 from sklearn.metrics import mean_squared_error, r2_score
+import sys
+sys.path.insert(0,'../jaws/jaws')
+import sunposition as sunpos
+from pytablewriter import MarkdownTableWriter
+import math      
 
 #%%
 def load_gcnet(path_gc, station):
@@ -81,29 +86,115 @@ def plot_comp(df_all, df_interpol, varname1, varname2,txt2, figure_name):
     fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
     
 #%% 
-# def tab_comp(df_all, df_interpol, varname1, varname2, figure_name):
-#     df = pd.DataFrame(columns=varname1)
-#     df['metric'] = ['RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N']
-#     df['time'] = ['all', 'all', 'all', 'all', 'night', 'night', 'night', 'night', 'day',  'day',  'day',  'day']
-#     df.set_index(['metric','time'],inplace=True)
+def tab_comp(df_all, df_interpol, varname1, varname2, filename):
+    df = pd.DataFrame(columns=varname1)
+    df['metric'] = ['RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N']
+    df['time'] = ['all', 'all', 'all', 'all', 'night', 'night', 'night', 'night', 'day',  'day',  'day',  'day']
+    df.set_index(['metric','time'],inplace=True)
     
-#     for i in range(np.size(varname1)):
+    time = df_interpol.index.values
+    sza=df_interpol[varname1[0]].values*np.nan
+    for k in range(len(time)-1):
+        sza[k] =   sunpos.observed_sunpos(  pd.Timestamp(
+            df_interpol.index.values[k]).to_pydatetime(), 75.6, -36,2700)[1]
+
+    day = sza<70
+    night = sza > 110
         
-#         x=df_interpol[varname1[i]].values
-#         y =df_interpol[varname2[i]].values
-#         x2=x[~np.isnan(y)&~np.isnan(x)]
-#         y2=y[~np.isnan(y)&~np.isnan(x)]
+    for i in range(np.size(varname1)):
         
-#         df.loc[('R2','all'),varname1[i]] = r2_score(x2,y2)
-#         df.loc[('ME','all'),varname1[i]] = np.mean(x2,y2)
-#         df.loc[('RMSE','all'),varname1[i]] = mean_squared_error(x2,y2)
-#         df.loc[('R2','all'),varname1[i]] = len(x2)),
-#                            fontsize=18, fontweight='bold')
-#         ax[i, j].set_xlabel(varname1[i])
-#         ax[i, j].set_ylabel(varname2[i])
-#         ax[i, j].set_aspect('equal')
-#     fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight')
+        x=df_interpol[varname1[i]].values
+        y =df_interpol[varname2[i]].values
+        x2=x[~np.isnan(y)&~np.isnan(x)]
+        y2=y[~np.isnan(y)&~np.isnan(x)]
+        
+        df.loc[('R2','all'),varname1[i]] = r2_score(x2,y2)
+        df.loc[('ME','all'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('RMSE','all'),varname1[i]] = mean_squared_error(x2,y2)
+        df.loc[('N','all'),varname1[i]] = len(x2)
+             
+
+        x=df_interpol.loc[night,varname1[i]].values
+        y =df_interpol.loc[night,varname2[i]].values
+        x2=x[~np.isnan(y)&~np.isnan(x)]
+        y2=y[~np.isnan(y)&~np.isnan(x)]
+        
+        df.loc[('R2','night'),varname1[i]] = r2_score(x2,y2)
+        df.loc[('ME','night'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('RMSE','night'),varname1[i]] = mean_squared_error(x2,y2)
+        df.loc[('N','night'),varname1[i]] = len(x2)
+        
+        x = df_interpol.loc[day,varname1[i]].values
+        y = df_interpol.loc[day,varname2[i]].values
+        x2=x[~np.isnan(y)&~np.isnan(x)]
+        y2=y[~np.isnan(y)&~np.isnan(x)]
+        
+        df.loc[('R2','day'),varname1[i]] = r2_score(x2,y2)
+        df.loc[('ME','day'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('RMSE','day'),varname1[i]] = mean_squared_error(x2,y2)
+        df.loc[('N','day'),varname1[i]] = len(x2)
+    trunc = lambda x: math.trunc(100 * x) / 100;
+    df = df.applymap(trunc)
+    df=df.reset_index()
+    df.to_csv(filename+'.csv')
     
+    writer = MarkdownTableWriter()
+    writer.from_dataframe(df)
+    writer.write_table()
+        # change the output stream to a file
+    with open(filename+'.md', "w") as f:
+        writer.stream = f
+        writer.write_table()
+    
+#%% 
+def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
+             
+    sza=df_interpol[varname1[0]].values*np.nan
+    for k in range(len(sza)-1):
+        sza[k] =   sunpos.observed_sunpos(  pd.Timestamp(
+            df_interpol.index.values[k]).to_pydatetime(), 75.6, -36,2700)[1]
+
+    day = sza<70
+    night = sza > 110
+        
+    diff_night = [df_interpol.loc[night,varname1[i]].values \
+                  - df_interpol.loc[night,varname2[i]].values for i in range(len(varname1))]
+    diff_day = [df_interpol.loc[day,varname1[i]].values \
+                  - df_interpol.loc[day,varname2[i]].values for i in range(len(varname1))]
+    for i in range(len(varname1)):
+        diff_day[i] = diff_day[i][~np.isnan(diff_day[i])]
+        diff_night[i] = diff_night[i][~np.isnan(diff_night[i])]
+    
+    diff_all = [sub[item] for item in range(len(diff_day)) 
+                  for sub in [diff_day, diff_night]] 
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(9, 4))
+    violin_parts = ax.violinplot(diff_all, 
+                                 np.arange(1,len(diff_all)+1)/2+0.25,
+                                 showmedians=True,
+                                 showextrema=False) 
+    cmap = mpl.cm.get_cmap('tab20')
+
+
+    for i, pc in enumerate(violin_parts['bodies']):
+        rgba = cmap(i)
+        pc.set_facecolor(rgba)
+        pc.set_edgecolor(rgba)
+
+    ax.set_xticks(np.arange(1, len(varname1) + 1))
+    ax.set_xticklabels(varname1)
+    ax.set_ylabel('GC-Net - PROMICE')
+    ax.axhline(0, color='black', lw=2, alpha=0.5)
+    from matplotlib.patches import Patch
+    from matplotlib.lines import Line2D
+    
+    legend_elements = [Patch(facecolor='0.65', edgecolor='k', label='Day'),
+                       Patch(facecolor='0.85', edgecolor='k', label='Night')]
+    
+    ax.legend(handles=legend_elements)
+
+    fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
+
 #%% Relative humidity tools
 def RH_water2ice(RH, T):
     # switch ONLY SUBFREEZING timesteps to with-regards-to-ice
