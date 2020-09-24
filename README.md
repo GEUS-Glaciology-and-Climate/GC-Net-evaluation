@@ -7,16 +7,6 @@ B.Vandecrux, N. Karlson, J. E. Box
 
  
 
-# Dye-2
-## Shortwave radiation
-![-](Output/dye-2_SWrad.png)
-## Relative Humidity and Air Pressure
-![-](Output/dye-2_rh_pres.png)
-## Air temperature
-![-](Output/dye-2_temp.png)
-## Wind speed and direction
-![-](Output/dye-2_wind.png)
-
 # EastGRIP
 ## Air temperature
 ![-](Output/EGP_temp.png)
@@ -39,9 +29,21 @@ B.Vandecrux, N. Karlson, J. E. Box
 |ME    |day  |        -0.52|        -0.34|       -0.07|        0.42|    -2.84|    -5.96|                  0.15|       -0.74|   -0.25|    0.08|    -15.97|    -17.42|
 |R2    |day  |         0.97|         0.97|        0.96|        0.95|     0.03|    -0.42|                  0.96|        0.77|    0.69|    0.84|      0.17|      0.25|
 |N     |day  |      2217.00|      2217.00|     2217.00|     2217.00|  2217.00|  2217.00|               2217.00|     2217.00| 2217.00| 2217.00|   2217.00|   2217.00|
+
+
 ##Violin plots
 ![-](Output/EGP_temp_violin..png)
 ![-](Output/EGP_rh_pres_violin..png)
 ![-](Output/EGP_wind_violin..png)
 
 
+
+# Dye-2
+## Shortwave radiation
+![-](Output/dye-2_SWrad.png)
+## Relative Humidity and Air Pressure
+![-](Output/dye-2_rh_pres.png)
+## Air temperature
+![-](Output/dye-2_temp.png)
+## Wind speed and direction
+![-](Output/dye-2_wind.png)

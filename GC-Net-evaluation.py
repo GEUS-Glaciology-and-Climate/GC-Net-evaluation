@@ -105,9 +105,12 @@ df_all = df_all.set_index('time')
 # df_all['Albedo'] = df_all['ShortwaveRadiationUpWm2'] / df_all['ShortwaveRadiationDownWm2']
 df_all['RelativeHumidity_wrt'] = gnl.RH_ice2water(df_all['RelativeHumidity(%)'] ,
                                                        df_all['AirTemperature(C)'])
-df_all['SpecHum'] = gnl.RH2SpecHum(df_all['RelativeHumidity(%)'] ,
-                                                       df_all['AirTemperature(C)'] ,
-                                                       df_all['AirPressure(hPa)'] )*1000
+df_all['SpecHum1'] = gnl.RH2SpecHum(df_all['rh_Avg(1)'] ,
+                                                       df_all['t_air_Avg(1)'] ,
+                                                       df_all['pressure_Avg'] )*1000
+df_all['SpecHum2'] = gnl.RH2SpecHum(df_all['rh_Avg(2)'] ,
+                                                       df_all['t_air_Avg(2)'] ,
+                                                       df_all['pressure_Avg'] )*1000
 df_all.pressure_Avg = df_all.pressure_Avg+300
 df_all.pressure_Avg.loc[df_all.pressure_Avg<690] = np.nan
 df_all['AirPressure(hPa)'].loc[df_all['AirPressure(hPa)']>750] = np.nan
@@ -125,8 +128,9 @@ varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTe
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'PROMICE', station+'_temp')
 gnl.day_night_plot(df_all, df_interpol, varname1, varname2,station+'_temp_violin')
 
-varname1 =  ['rh_Avg(1)', 'rh_Avg(2)','SpecificHumidity(g/kg)', 'pressure_Avg']
-varname2 =  ['RelativeHumidity_wrt','RelativeHumidity_wrt','SpecHum', 'AirPressure(hPa)']
+varname1 =  ['rh_Avg(1)', 'rh_Avg(2)','SpecHum1','SpecHum2','pressure_Avg']
+varname2 =  ['RelativeHumidity_wrt','RelativeHumidity_wrt',
+             'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)','AirPressure(hPa)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'PROMICE', station+'_rh_pres')
 gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_rh_pres_violin')
