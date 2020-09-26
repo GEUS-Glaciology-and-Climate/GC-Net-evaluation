@@ -38,6 +38,12 @@ B.Vandecrux, N. Karlson, J. E. Box
 
 
 
+# GITS-CEN
+
+There is currently no overlap between the two dataset.
+Need to ask for more recent GITS data (transmission?).
+![-](Output/GITS_CEN_temp..png)
+
 # Dye-2
 ## Shortwave radiation
 ![-](Output/dye-2_SWrad.png)

@@ -21,6 +21,7 @@ sys.path.insert(0,'../jaws/jaws')
 import sunposition as sunpos
 from pytablewriter import MarkdownTableWriter
 import math      
+from matplotlib.patches import Patch
 
 #%%
 def load_gcnet(path_gc, station):
@@ -185,8 +186,6 @@ def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
     ax.set_xticklabels(varname1)
     ax.set_ylabel('GC-Net - PROMICE')
     ax.axhline(0, color='black', lw=2, alpha=0.5)
-    from matplotlib.patches import Patch
-    from matplotlib.lines import Line2D
     
     legend_elements = [Patch(facecolor='0.65', edgecolor='k', label='Day'),
                        Patch(facecolor='0.85', edgecolor='k', label='Night')]

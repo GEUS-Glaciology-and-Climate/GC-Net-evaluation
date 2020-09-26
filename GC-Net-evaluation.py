@@ -37,16 +37,28 @@ df_samira = gnl.load_promice(path_ucalg)
 # selecting overlapping data
 df_gc = df_gc.loc[df_gc.time>=df_samira['time'][0]]
 df_gc = df_gc.loc[df_gc.time<=df_samira['time'].values[-1]]
-# df_gc.loc[df_gc.time>=datetime.datetime(2016, 10, 15, 9, 0)] = np.NaN
+df_gc=df_gc.loc[df_gc.time<='2016-10-15'] 
 
-# df_samira = df_samira.loc[df_samira.time>=df_gc['time'].iloc[0]]
-# df_samira = df_samira.loc[df_samira.time<=df_gc['time'].iloc[-1]]
+df_samira = df_samira.loc[df_samira.time>=df_gc['time'].iloc[0]]
+df_samira = df_samira.loc[df_samira.time<=df_gc['time'].iloc[-1]]
 
 
 # joining datasets
 df_all = pd.concat([df_gc, df_samira], axis = 0).sort_values(by='time')
 df_all = df_all.set_index('time')
 df_all['Albedo'] = df_all['ShortwaveRadiationUpWm2'] / df_all['ShortwaveRadiationDownWm2']
+df_all['rh1_i'] = gnl.RH_water2ice(df_all['rh1'] ,df_all['AirTemperatureC'])
+df_all['RelativeHumidity_i'] = gnl.RH_water2ice(df_all['RelativeHumidity_wrtWater'] ,df_all['AirTemperatureC'])
+df_all['ps']=df_all['ps']/100
+
+df_all['SpecHum1'] = gnl.RH2SpecHum(df_all['rh1_i'] ,
+                                                       df_all['ta_tc1'] ,
+                                                       df_all['ps'] )*1000
+
+df_all['SpecHum_ucalg'] = gnl.RH2SpecHum(df_all['RelativeHumidity_i'] ,
+                                                       df_all['AirTemperatureC'] ,
+                                                       df_all['AirPressurehPa'] )*1000
+
 df_interpol = df_all.interpolate(method='time')
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
 
@@ -61,14 +73,13 @@ varname1 =  ['ta_tc1','ta_tc2','ta_cs1','ta_cs2']
 varname2 =  ['AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'U.Calg.', station+'_temp')
 
-varname1 =  ['rh1','rh2','ps']
-varname2 =  ['RelativeHumidity', 'RelativeHumidity', 'AirPressurehPa']
+varname1 =  ['rh1','SpecHum1','ps']
+varname2 =  ['RelativeHumidity_wrtWater', 'SpecHum_ucalg','AirPressurehPa']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'U.Calg.', station+'_rh_pres')
 
 varname1 =  ['wspd1','wspd2','wdir1','wdir2']
 varname2 =  [ 'WindSpeedms', 'WindSpeedms','WindDirectiond','WindDirectiond']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,'U.Calg.', station+'_wind')
-
 
 #%% Comparison at EastGRIP
 # Loading gc-net data
@@ -151,4 +162,88 @@ varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTe
              'WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
 
 gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all')
+
+#%% GITS-Camp Century
+# Loading gc-net data
+path_gc = '../../AWS_Processing/Input/GCnet/20190501_jaws/'
+station = 'GITS'
+df_gc = gnl.load_gcnet(path_gc, station)
+
+df_gc['ta_tc1']=df_gc['ta_tc1']-273.15
+df_gc['ta_tc2']=df_gc['ta_tc2']-273.15
+df_gc['ta_cs1']=df_gc['ta_cs1']-273.15
+df_gc['ta_cs2']=df_gc['ta_cs2']-273.15
+
+# loading data from CEN
+path_promice = '../../AWS_Processing/Input/PROMICE/CEN_hour_v03.txt'
+df_cen = pd.read_csv(path_promice,delim_whitespace=True)
+df_cen['time'] = df_cen.Year * np.nan
+
+for i, y in enumerate(df_cen.Year.values):
+    df_cen.time[i] = datetime.datetime(int(y), df_cen['MonthOfYear'].values[i], df_cen['DayOfMonth'].values[i], df_cen['HourOfDay(UTC)'].values[i])
+
+#set invalid values (-999) to nan 
+df_cen[df_cen==-999.0]=np.nan
+
+# selecting overlapping data
+# df_gc = df_gc.loc[df_gc.time>=df_cen['time'][0]]
+# df_gc = df_gc.loc[df_gc.time<=df_cen['time'].values[-1]]
+
+# df_cen = df_cen.loc[df_cen.time>=df_gc['time'].iloc[0]]
+# df_cen = df_cen.loc[df_cen.time<=df_gc['time'].iloc[-1]]
+
+# joining datasets
+df_all = pd.concat([df_gc, df_cen], axis = 0).sort_values(by='time')
+df_all = df_all.set_index('time')
+df_all['Albedo'] = df_all['ShortwaveRadiationUp(W/m2)'] / df_all['ShortwaveRadiationDown(W/m2)']
+# df_all['RelativeHumidity_wrt'] = gnl.RH_ice2water(df_all['RelativeHumidity(%)'] ,
+#                                                        df_all['AirTemperature(C)'])
+df_all['SpecHum1'] = gnl.RH2SpecHum(df_all['rh1'] ,
+                                                       df_all['ta_tc1'] ,
+                                                       df_all['ps'] )*1000
+df_all['SpecHum2'] = gnl.RH2SpecHum(df_all['rh2'] ,
+                                                       df_all['ta_tc2'] ,
+                                                       df_all['ps'] )*1000
+# df_all.pressure_Avg = df_all.pressure_Avg+300
+# df_all.pressure_Avg.loc[df_all.pressure_Avg<690] = np.nan
+# df_all['AirPressure(hPa)'].loc[df_all['AirPressure(hPa)']>750] = np.nan
+# df_all['Dir_Avg(1)']=360-df_all['Dir_Avg(1)']
+
+df_interpol = df_all.interpolate(method='time')
+df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
+# df_interpol=df_interpol.set_index('time')
+# df_interpol['t_air_Avg(1)'].loc[df_interpol['t_air_Avg(1)']<=-40] = np.nan
+# df_interpol['t_air_Avg(2)'].loc[df_interpol['t_air_Avg(2)']<=-40] = np.nan
+
+
+varname1 =  ['fsus', 'fsds', 'fsus_adjusted','fsds_adjusted','alb']
+varname2 =  ['ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)',
+             'ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)','Albedo']
+
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,'CEN', station+'_SWrad')
+
+varname1 =  ['ta_tc1','ta_tc2','ta_cs1','ta_cs2']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTemperature(C)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,'CEN', station+'_temp')
+
+varname1 =  ['rh1','rh2','SpecHum1','SpecHum2','ps']
+varname2 =  ['RelativeHumidity(%)','RelativeHumidity(%)',
+             'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)','AirPressure(hPa)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,'CEN', station+'_rh_pres')
+
+varname1 =  ['wspd1','wspd2','wdir1','wdir2']
+varname2 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,'CEN', station+'_wind')
+
+# %% 
+fig, ax = plt.subplots(2,1, figsize=(10, 7))
+ax[0].plot(df_gc['time'],df_gc['ta_tc1'],label='GITS')
+ax[0].plot(df_cen['time'],df_cen['AirTemperature(C)'],label='CEN')
+ax[0].set_ylabel('Air temperature (deg C)')
+ax[0].legend()
+ax[1].plot(df_gc['time'],df_gc['fsds_adjusted'],label='GITS')
+ax[1].plot(df_cen['time'],df_cen['ShortwaveRadiationDown(W/m2)'],label='CEN')
+ax[1].set_ylabel('Shortwave Radiation Down (W/m2)')
+ax[1].set_xlabel('Year')
+fig.savefig('./Output/GITS_CEN_temp.png',bbox_inches='tight', dpi=200)
 
