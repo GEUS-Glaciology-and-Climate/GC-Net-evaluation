@@ -31,7 +31,7 @@ B.Vandecrux, N. Karlson, J. E. Box
 |N     |day  |      2217.00|      2217.00|     2217.00|     2217.00|  2217.00|  2217.00|               2217.00|     2217.00| 2217.00| 2217.00|   2217.00|   2217.00|
 
 
-##Violin plots
+## Violin plots
 ![-](Output/EGP_temp_violin..png)
 ![-](Output/EGP_rh_pres_violin..png)
 ![-](Output/EGP_wind_violin..png)

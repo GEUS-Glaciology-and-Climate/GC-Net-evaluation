@@ -129,8 +129,8 @@ df_all['Dir_Avg(1)']=360-df_all['Dir_Avg(1)']
 
 df_interpol = df_all.interpolate(method='time')
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
-df_interpol['t_air_Avg(1)'].loc[df_interpol['t_air_Avg(1)']<=-40] = np.nan
-df_interpol['t_air_Avg(2)'].loc[df_interpol['t_air_Avg(2)']<=-40] = np.nan
+df_interpol['t_air_Avg(1)'].loc[df_interpol['t_air_Avg(1)']<=-39.9] = np.nan
+df_interpol['t_air_Avg(2)'].loc[df_interpol['t_air_Avg(2)']<=-39.9] = np.nan
 
 # %% Plotting
 varname1 =  ['tc_air_Avg(1)', 'tc_air_Avg(2)', 't_air_Avg(1)','t_air_Avg(2)']
