@@ -32,9 +32,9 @@ B.Vandecrux, N. Karlson, J. E. Box
 
 
 ## Violin plots
-![-](Output/EGP_temp_violin..png)
-![-](Output/EGP_rh_pres_violin..png)
-![-](Output/EGP_wind_violin..png)
+![-](Output/EGP_temp_violin.png)
+![-](Output/EGP_rh_pres_violin.png)
+![-](Output/EGP_wind_violin.png)
 
 
 
@@ -42,7 +42,7 @@ B.Vandecrux, N. Karlson, J. E. Box
 
 There is currently no overlap between the two dataset.
 Need to ask for more recent GITS data (transmission?).
-![-](Output/GITS_CEN_temp..png)
+![-](Output/GITS_CEN_temp.png)
 
 # Dye-2
 ## Shortwave radiation
