@@ -62,13 +62,13 @@ B.Vandecrux, N. Karlson, J. E. Box
 
 # Dye-2
 ## Shortwave radiation
-![-](Output/dye-2_SWrad.png)
+![-](Output/DYE-2_SWrad.png)
 ## Relative Humidity and Air Pressure
-![-](Output/dye-2_rh_pres.png)
+![-](Output/DYE-2_rh_pres.png)
 ## Air temperature
-![-](Output/dye-2_temp.png)
+![-](Output/DYE-2_temp.png)
 ## Wind speed and direction
-![-](Output/dye-2_wind.png)
+![-](Output/DYE-2_wind.png)
 ## Night/day dependant temperature bias
  (ME = GC-Net - UCalg)
 
