@@ -112,21 +112,31 @@ varname2 =  [ 'WindSpeedms', 'WindSpeedms','WindDirectiond','WindDirectiond']
 varname3 =  [ 'Wind speed 1 (m/s)', 'Wind speed 2 (m/s)','Wind direction 1 (d)','Wind direction 2 (d)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'U.Calg.', station+'_wind')
 
-#%% 
-# from windrose import WindroseAxes
-# import matplotlib.cm as cm
-# ax = WindroseAxes.from_ax()
-# ws = df_all['WindSpeedms']
-# wd = df_all['WindDirectiond']
-# ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
-# ax.set_legend(title='Wind speed (m/s)')
-# ax.set_title('UCalg')
-# ax = WindroseAxes.from_ax()
-# ws = df_all['VW1']
-# wd = df_all['DW1']
-# ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
-# ax.set_legend(title='Wind speed (m/s)')
-# ax.set_title('GC-Net')
+from windrose import WindroseAxes
+import matplotlib.cm as cm
+fig = plt.figure(figsize=(10,8))
+ax = WindroseAxes.from_ax(fig=fig)
+ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeedms'])
+ws[ws<np.nanmean(ws)] = np.nan
+wd = df_interpol['WindDirectiond']
+ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
+ax.set_legend(title='Wind speed (m/s)')
+ax.set_title(station)
+fig.savefig('./Output/'+station+'_wind_bias_dir.png',bbox_inches='tight', dpi=200)
+
+#% making day_night table
+
+varname1 =  ['TA1', 'TA2', #'ta_cs1','ta_cs2',
+             'RH1', 'RH2','SpecHum1','SpecHum2', 
+             'P', 'VW1',  'VW2',
+             'DW1', 'DW2']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)', #'AirTemperature(C)','AirTemperature(C)',
+             'RelativeHumidity_w','RelativeHumidity_w',
+             'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)',
+             'AirPressure(hPa)', 'WindSpeed(m/s)', 
+             'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
+
+gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all_'+station)
 
 #%% Comparison at EastGRIP
 # Loading gc-net data
@@ -214,16 +224,28 @@ varname3 =  ['Relative humidity 1 (%)','Relative humidity 2 (%)',
              'Specific humidity 1 (g/kg)','Specific humidity 2 (g/kg)','Air pressure (hPa)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'PROMICE', station+'_rh_pres')
-gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_rh_pres_violin')
+# gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_rh_pres_violin')
 
 varname1 =  [ 'VW1',  'VW2', 'DW1', 'DW2']
 varname2 =  ['WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
 varname3 =  ['Wind Speed (m/s)', 'Wind Speed (m/s)', 'Wind Direction (d)', 'Wind Direction (d)']
 
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'PROMICE', station+'_wind')
-gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_wind_violin')
+# gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_wind_violin')
 
-#%% making day_night table
+from windrose import WindroseAxes
+import matplotlib.cm as cm
+fig = plt.figure(figsize=(10,8))
+ax = WindroseAxes.from_ax(fig=fig)
+ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeed(m/s)'])
+ws[ws<np.nanmean(ws)] = np.nan
+wd = df_interpol['WindDirection(d)']
+ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
+ax.set_legend(title='Wind speed (m/s)')
+ax.set_title(station)
+fig.savefig('./Output/'+station+'_wind_bias_dir.png',bbox_inches='tight', dpi=200)
+
+#% making day_night table
 
 varname1 =  ['TA1', 'TA2', #'ta_cs1','ta_cs2',
              'RH1', 'RH2','SpecHum1','SpecHum2', 
@@ -235,7 +257,7 @@ varname2 =  ['AirTemperature(C)', 'AirTemperature(C)', #'AirTemperature(C)','Air
              'AirPressure(hPa)', 'WindSpeed(m/s)', 
              'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
 
-gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all')
+gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all_'+station)
 
 #%% GITS-Camp Century
 # Loading gc-net data
@@ -336,4 +358,28 @@ varname2 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirecti
 varname3 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,'CEN', station+'_wind')
 
+from windrose import WindroseAxes
+import matplotlib.cm as cm
+fig = plt.figure(figsize=(10,8))
+ax = WindroseAxes.from_ax(fig=fig)
+ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeed(m/s)'])
+ws[ws<np.nanmean(ws)] = np.nan
+wd = df_interpol['WindDirection(d)']
+ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
+ax.set_legend(title='Wind speed (m/s)')
+ax.set_title(station)
+fig.savefig('./Output/'+station+'_wind_bias_dir.png',bbox_inches='tight', dpi=200)
 
+#% making day_night table
+
+varname1 =  ['TA1', 'TA2', #'ta_cs1','ta_cs2',
+             'RH1', 'RH2','SpecHum1','SpecHum2', 
+             'P', 'VW1',  'VW2',
+             'DW1', 'DW2']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)', #'AirTemperature(C)','AirTemperature(C)',
+             'RelativeHumidity_w','RelativeHumidity_w',
+             'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)',
+             'AirPressure(hPa)', 'WindSpeed(m/s)', 
+             'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
+
+gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all_'+station)
