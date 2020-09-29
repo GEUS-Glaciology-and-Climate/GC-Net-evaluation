@@ -87,19 +87,21 @@ df_interpol = df_all.interpolate(method='time').bfill()[mask]
 df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample('h').asfreq()
 
 # plotting
-varname1 =  [ 'ISWR','fsds_adjusted','OSWR', 'fsus_adjusted','alb']
-varname2 =  [ 'ShortwaveRadiationDownWm2',  'ShortwaveRadiationDownWm2','ShortwaveRadiationUpWm2',
-             'ShortwaveRadiationUpWm2','Albedo']
-varname3 = ['SWdown (W/m2)','SWdown tilt corrected (W/m2)','SWdown (W/m2)','SWdown tilt corrected (W/m2)', 'Albedo (-)']
+varname1 =  [ 'ISWR','OSWR', #'fsds_adjusted','fsus_adjusted',
+             'alb']
+varname2 =  [ 'ShortwaveRadiationDownWm2',  'ShortwaveRadiationUpWm2', #'ShortwaveRadiationDownWm2', 'ShortwaveRadiationUpWm2',
+             'Albedo']
+varname3 = ['SWdown (W/m2)','SWdown (W/m2)',#'SWdown tilt corrected (W/m2)','SWdown tilt corrected (W/m2)',
+            'Albedo (-)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3, 'U.Calg.', station+'_SWrad')
 
-varname1 =  ['TA1','TA2','ta_cs1','ta_cs2']
-varname2 =  ['AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC', 'AirTemperatureC']
-varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)','Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
+varname1 =  ['TA1','TA2']#,'ta_cs1','ta_cs2']
+varname2 =  ['AirTemperatureC', 'AirTemperatureC']#, 'AirTemperatureC', 'AirTemperatureC']
+varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)']#,'Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'U.Calg.', station+'_temp')
 
-varname1 =  ['RH1_w','RH2_w','SpecHum1','SpecHum2','P']
-varname2 =  ['RelativeHumidity_w','RelativeHumidity_w', 'SpecHum_ucalg','SpecHum_ucalg','AirPressurehPa']
+varname1 =  ['RH1_w','SpecHum1','P']
+varname2 =  ['RelativeHumidity_w','SpecHum_ucalg','AirPressurehPa']
 varname3 =  ['Relative Humidity 1 (%)','Relative Humidity 2 (%)', 
              'Specific humidity 1 (g/kg)','Specific humidity 2 (g/kg)',
              'Air pressure (hPa)']
@@ -199,12 +201,10 @@ for k in range(len(df_interpol['sza'])-1):
         df_interpol.index.values[k]).to_pydatetime(), 75.6, -36,2700)[1]
     
 # % Plotting
-varname1 =  ['TA1', 'TA2', 'ta_cs1','ta_cs2']
-varname2 =  ['AirTemperature(C)', 'AirTemperature(C)',
-             'AirTemperature(C)','AirTemperature(C)']
-varname3 =  ['Air temperature tc1 (deg C)', 'Air temperature tc2 (deg C)','Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'PROMICE', station+'_temp')
-gnl.day_night_plot(df_all, df_interpol, varname1, varname2,station+'_temp_violin')
+varname1 =  ['TA1','TA2']#,'ta_cs1','ta_cs2']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)']#, 'AirTemperatureC', 'AirTemperatureC']
+varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)']#,'Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'EGP', station+'_temp')
 
 
 varname1 =  ['RH1_w', 'RH2_w','SpecHum1','SpecHum2','P']
@@ -225,12 +225,15 @@ gnl.day_night_plot(df_all, df_interpol, varname1, varname2, station+'_wind_violi
 
 #%% making day_night table
 
-varname1 =  ['TA1', 'TA2', 'ta_cs1','ta_cs2','RH1',
-             'RH2','SpecificHumidity(g/kg)', 'P', 'VW1',  'VW2',
+varname1 =  ['TA1', 'TA2', #'ta_cs1','ta_cs2',
+             'RH1', 'RH2','SpecHum1','SpecHum2', 
+             'P', 'VW1',  'VW2',
              'DW1', 'DW2']
-varname2 =  ['AirTemperature(C)', 'AirTemperature(C)','AirTemperature(C)','AirTemperature(C)',
-             'RelativeHumidity_wrt','RelativeHumidity_wrt','SpecHum', 'AirPressure(hPa)',
-             'WindSpeed(m/s)', 'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)', #'AirTemperature(C)','AirTemperature(C)',
+             'RelativeHumidity_w','RelativeHumidity_w',
+             'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)',
+             'AirPressure(hPa)', 'WindSpeed(m/s)', 
+             'WindSpeed(m/s)', 'WindDirection(d)', 'WindDirection(d)']
 
 gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_all')
 
@@ -308,20 +311,18 @@ df_interpol = df_interpol[~df_interpol.index.duplicated(keep='first')].resample(
 # df_interpol['ta_cs1'].loc[df_interpol['ta_cs1']<=-40] = np.nan
 # df_interpol['ta_cs2'].loc[df_interpol['ta_cs2']<=-40] = np.nan
 
-varname1 =  ['OSWR', 'ISWR', 'fsus_adjusted','fsds_adjusted','alb']
-varname2 =  ['ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)',
-              'ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)','Albedo']
-varname3 =  ['ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)',
-              'ShortwaveRadiationUp(W/m2)', 'ShortwaveRadiationDown(W/m2)','Albedo']
+varname1 =  [ 'ISWR','OSWR', #'fsds_adjusted','fsus_adjusted',
+             'alb']
+varname2 =  [ 'ShortwaveRadiationDown_Cor(W/m2)',  'ShortwaveRadiationUp_Cor(W/m2)', #'ShortwaveRadiationDownWm2', 'ShortwaveRadiationUpWm2',
+             'Albedo']
+varname3 = ['SWdown (W/m2)','SWdown (W/m2)',#'SWdown tilt corrected (W/m2)','SWdown tilt corrected (W/m2)',
+            'Albedo (-)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3, 'CEN', station+'_SWrad')
 
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,'CEN', station+'_SWrad')
-
-varname1 =  ['TA1','TA2','ta_cs1','ta_cs2']
-varname2 =  ['AirTemperature(C)', 'AirTemperature(C)',
-             'AirTemperature(C)','AirTemperature(C)']
-varname3 =  ['AirTemperature(C)', 'AirTemperature(C)',
-             'AirTemperature(C)','AirTemperature(C)']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,'CEN', station+'_temp')
+varname1 =  ['TA1','TA2']#,'ta_cs1','ta_cs2']
+varname2 =  ['AirTemperature(C)', 'AirTemperature(C)']#, 'AirTemperatureC', 'AirTemperatureC']
+varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)']#,'Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'CEN', station+'_temp')
 
 varname1 =  ['RH1_w','RH2_w','SpecHum1','SpecHum2','P']
 varname2 =  ['RelativeHumidity_w','RelativeHumidity_w',

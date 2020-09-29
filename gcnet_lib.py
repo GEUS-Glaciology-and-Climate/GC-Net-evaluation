@@ -22,6 +22,8 @@ from pytablewriter import MarkdownTableWriter
 import math      
 from matplotlib.patches import Patch
 import pytz
+import sunposition as sunpos
+
 #%%
 def load_gcnet(path_gc, station):
     df_gc_m = pd.read_csv('Input/Gc-net_documentation_Nov_10_2000.csv',sep=';')
@@ -97,11 +99,7 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
     df['time'] = ['all', 'all', 'all', 'all', 'night', 'night', 'night', 'night', 'day',  'day',  'day',  'day']
     df.set_index(['metric','time'],inplace=True)
     
-    time = df_interpol.index.values
-    sza=df_interpol[varname1[0]].values*np.nan
-    for k in range(len(time)-1):
-        sza[k] =   sunpos.observed_sunpos(  pd.Timestamp(
-            df_interpol.index.values[k]).to_pydatetime(), 75.6, -36,2700)[1]
+    sza=df_interpol['sza']
 
     day = sza<70
     night = sza > 110
