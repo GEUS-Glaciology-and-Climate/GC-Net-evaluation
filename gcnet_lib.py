@@ -18,11 +18,10 @@ import datetime
 from sklearn.metrics import mean_squared_error, r2_score
 import sys
 sys.path.insert(0,'../jaws/jaws')
-import sunposition as sunpos
 from pytablewriter import MarkdownTableWriter
 import math      
 from matplotlib.patches import Patch
-
+import pytz
 #%%
 def load_gcnet(path_gc, station):
     df_gc_m = pd.read_csv('Input/Gc-net_documentation_Nov_10_2000.csv',sep=';')
@@ -36,32 +35,34 @@ def load_gcnet(path_gc, station):
 #%%
 def load_promice(path_promice):
     df_promice = pd.read_csv(path_promice, delim_whitespace=True)
+    df_promice['time'] = df_promice.Year * np.nan
     df_promice['timestamp'] = df_promice.time
 
     for i, y in enumerate(df_promice.Year.values):
-        df_promice.time[i] = datetime.datetime(int(y), 1, 1)   + datetime.timedelta( days = df_promice.DayOfYear.values[i], hours = df_promice.HourOfDayUTC.values[i]-1) 
-
+        tmp = datetime.datetime(int(y), 1, 1)   + datetime.timedelta( days = df_promice.DayOfYear.values[i], hours = df_promice.HourOfDayUTC.values[i]-1) 
+        df_promice.time[i] = tmp.replace(tzinfo=pytz.UTC)
     #set invalid values (-999) to nan 
     df_promice[df_promice==-999.0]=np.nan
     return df_promice
 
 #%% 
-def plot_comp(df_all, df_interpol, varname1, varname2,txt2, figure_name):
+def plot_comp(df_all, df_interpol, varname1, varname2, varname3,txt2, figure_name):
     fig, ax = plt.subplots(np.size(varname1),2,
-                           figsize=(15, 3*np.size(varname1)),
+                           figsize=(13, 3*np.size(varname1)),
                            gridspec_kw={'width_ratios': [3, 1]})
-    fig.subplots_adjust(hspace=0.2, wspace=0.2)
+    fig.subplots_adjust(hspace=0.6, wspace=0.02)
     for i in range(np.size(varname1)):
         j = 0
         # ax[i, j].plot(df_all.index, df_all[varname1[i]],
         #               'bo--',label=varname1[i] + ' before')
         ax[i, j].plot(df_interpol.index, df_interpol[varname1[i]],
-                      'b',label= varname1[i] + ' GC-Net')
+                      'b',label= 'GC-Net')
         # ax[i, j].plot(df_all.index, df_all[varname2[i]],
         #               'ro--',label=varname2[i] + ' before')
         ax[i, j].plot(df_interpol.index, df_interpol[varname2[i]],
-                      'r',label=varname2[i] + ' PROMICE')
+                      'r',label=txt2,alpha=0.7)
         ax[i, j].legend()
+        ax[i, j].set_ylabel(varname3[i])
         
         x=df_interpol[varname1[i]].values
         y =df_interpol[varname2[i]].values
@@ -73,16 +74,19 @@ def plot_comp(df_all, df_interpol, varname1, varname2,txt2, figure_name):
         min_val = np.nanmin(np.minimum(df_interpol[varname1[i]],df_interpol[varname2[i]]).values)
         max_val = np.nanmax(np.maximum(df_interpol[varname1[i]],df_interpol[varname2[i]]).values)
         ax[i, j].plot([min_val, max_val], [min_val, max_val], 'k--',linewidth=4)
-        ax[i, j].annotate('R2=%.3f \nRMSE=%.2f \nN=%.0f' % (r2_score(x2,y2),
-                                                      mean_squared_error(x2,y2),
-                                                      len(x2)),
-                        xy=(1.1, 0.5), xycoords='axes fraction',
-                        xytext=(0, 0), textcoords='offset pixels',
-                        horizontalalignment='left',
-                        verticalalignment='center',
-                        fontsize=18, fontweight='bold')
-        ax[i, j].set_xlabel(varname1[i]+ ' GC-Net')
-        ax[i, j].set_ylabel(varname2[i] + txt2)
+        ax[i, j].set_title(varname3[i])
+        if len(x2)>0:
+            ax[i, j].annotate('R2=%.3f \nRMSE=%.2f \nME=%.2f \nN=%.0f' % (r2_score(x2,y2),
+                                                          mean_squared_error(x2,y2),
+                                                          np.nanmean(x2-y2),
+                                                          len(x2)),
+                            xy=(1.1, 0.5), xycoords='axes fraction',
+                            xytext=(0, 0), textcoords='offset pixels',
+                            horizontalalignment='left',
+                            verticalalignment='center',
+                            fontsize=14)
+        ax[i, j].set_xlabel(' GC-Net')
+        ax[i, j].set_ylabel( txt2)
         ax[i, j].set_aspect('equal')
     fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
     
@@ -150,13 +154,8 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
 #%% 
 def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
              
-    sza=df_interpol[varname1[0]].values*np.nan
-    for k in range(len(sza)-1):
-        sza[k] =   sunpos.observed_sunpos(  pd.Timestamp(
-            df_interpol.index.values[k]).to_pydatetime(), 75.6, -36,2700)[1]
-
-    day = sza<70
-    night = sza > 110
+    day = df_interpol.sza<70
+    night = df_interpol.sza > 110
         
     diff_night = [df_interpol.loc[night,varname1[i]].values \
                   - df_interpol.loc[night,varname2[i]].values for i in range(len(varname1))]
@@ -168,7 +167,9 @@ def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
     
     diff_all = [sub[item] for item in range(len(diff_day)) 
                   for sub in [diff_day, diff_night]] 
-    
+    for i in range(len(diff_all)):
+        if len(diff_all[i])==0:
+            diff_all[i] = [0]
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(9, 4))
     violin_parts = ax.violinplot(diff_all, 
                                  np.arange(1,len(diff_all)+1)/2+0.25,
@@ -205,11 +206,13 @@ def RH_water2ice(RH, T):
     TCoeff = 1/273.15 - 1/(T+273.15)
     Es_Water = 6.112*np.exp(Lv/Rv*TCoeff)
     Es_Ice = 6.112*np.exp(Ls/Rv*TCoeff)
-    RH[ind] = RH[ind] * Es_Water[ind]/Es_Ice[ind] 
-    return RH
+    RH_out = RH.copy()
+    RH_out[ind] = RH[ind] * Es_Water[ind]/Es_Ice[ind] 
+    return RH_out
 
 def RH_ice2water(RH, T):
     # switch ALL timestep to with-regards-to-water
+    RH = np.array(RH)
     Lv = 2.5001e6  # H2O Vaporization Latent Heat (J/kg)
     Ls = 2.8337e6  # H2O Sublimation Latent Heat (J/kg)
     Rv = 461.5     # H2O Vapor Gaz constant (J/kg/K)
@@ -217,8 +220,77 @@ def RH_ice2water(RH, T):
     TCoeff = 1/273.15 - 1/(T+273.15)
     Es_Water = 6.112*np.exp(Lv/Rv*TCoeff)
     Es_Ice = 6.112*np.exp(Ls/Rv*TCoeff)
-    RH[ind] = RH[ind] / Es_Water[ind]*Es_Ice[ind] 
-    return RH
+    RH_out = RH.copy()
+    
+    # T_100 = 373.15
+    # T_0 = 273.15
+    # T = T +T_0
+    # # GOFF-GRATCH 1945 equation
+    #    # saturation vapour pressure above 0 C (hPa)
+    # Es_Water = 10**(  -7.90298*(T_100/T - 1) + 5.02808 * np.log(T_100/T) 
+    #     - 1.3816E-7 * (10**(11.344*(1-T/T_100))-1) 
+    #     + 8.1328E-3*(10**(-3.49149*(T_100/T-1)) -1.) + np.log(1013.246) )
+    # # saturation vapour pressure below 0 C (hPa)
+    # Es_Ice = 10**(  -9.09718 * (T_0 / T - 1.) - 3.56654 * np.log(T_0 / T) + 
+    #              0.876793 * (1. - T / T_0) + np.log(6.1071)  )   
+    
+    RH_out[ind] = RH[ind] / Es_Water[ind]*Es_Ice[ind] 
+
+    return RH_out
+
+def RH_ice2water2(RH, T):
+    # switch ALL timestep to with-regards-to-water
+    RH = np.array(RH)
+    # Lv = 2.5001e6  # H2O Vaporization Latent Heat (J/kg)
+    # Ls = 2.8337e6  # H2O Sublimation Latent Heat (J/kg)
+    # Rv = 461.5     # H2O Vapor Gaz constant (J/kg/K)
+    ind = T < 0
+    # TCoeff = 1/273.15 - 1/(T+273.15)
+    # Es_Water = 6.112*np.exp(Lv/Rv*TCoeff)
+    # Es_Ice = 6.112*np.exp(Ls/Rv*TCoeff)
+    RH_out = RH.copy()
+    
+    T_100 = 373.15
+    T_0 = 273.15
+    T = T +T_0
+    # GOFF-GRATCH 1945 equation
+        # saturation vapour pressure above 0 C (hPa)
+    Es_Water = 10**(  -7.90298*(T_100/T - 1) + 5.02808 * np.log10(T_100/T) 
+        - 1.3816E-7 * (10**(11.344*(1-T/T_100))-1) 
+        + 8.1328E-3*(10**(-3.49149*(T_100/T-1)) -1.) + np.log10(1013.246) )
+    # saturation vapour pressure below 0 C (hPa)
+    Es_Ice = 10**(  -9.09718 * (T_0 / T - 1.) - 3.56654 * np.log10(T_0 / T) + 
+                  0.876793 * (1. - T / T_0) + np.log10(6.1071)  )   
+    
+    RH_out[ind] = RH[ind] / Es_Water[ind]*Es_Ice[ind] 
+
+    return RH_out
+
+# def RH_ice2water3(RH, T):
+#     # switch ALL timestep to with-regards-to-water
+#     RH = np.array(RH)
+#     # Lv = 2.5001e6  # H2O Vaporization Latent Heat (J/kg)
+#     # Ls = 2.8337e6  # H2O Sublimation Latent Heat (J/kg)
+#     # Rv = 461.5     # H2O Vapor Gaz constant (J/kg/K)
+#     ind = T < 0
+#     # TCoeff = 1/273.15 - 1/(T+273.15)
+#     # Es_Water = 6.112*np.exp(Lv/Rv*TCoeff)
+#     # Es_Ice = 6.112*np.exp(Ls/Rv*TCoeff)
+#     RH_out = RH.copy()
+    
+#     T_100 = 373.15
+#     T_0 = 273.15
+#     T = T +T_0
+#    # saturation vapour pressure above 0 C (hPa)
+#     Es_Water = 10**(  10.79574*(1 - T_100/T) + 5.028 * np.log10(T / T_100)
+#                     + 1.50475E-4 * (1 - 10**(-8.2969 * (T/T_100 - 1)))
+#                     + 0.42873E-3*(10**(4.76955*(1 - T_100/T)) -1.) +  0.78614 + 2.0 )
+
+#     Es_Ice = 10**( -9.09685 * (T_0 / T - 1.) - 3.56654 * np.log10(T_0 / T) +
+#                   0.87682 * (1. - T / T_0) + 0.78614   )
+#     RH_out[ind] = RH[ind] / Es_Water[ind]*Es_Ice[ind] 
+
+#     return RH_out
 
 def RH2SpecHum(RH, T, pres):
     # Note: RH[T<0] needs to be with regards to ice
@@ -232,7 +304,7 @@ def RH2SpecHum(RH, T, pres):
     Es_Water = 6.112*np.exp(Lv/Rv*TCoeff)
     Es_Ice = 6.112*np.exp(Ls/Rv*TCoeff)
     
-    es_all = Es_Water
+    es_all = Es_Water.copy()
     es_all[T < 0] = Es_Ice[T < 0] 
     
     # specific humidity at saturation
