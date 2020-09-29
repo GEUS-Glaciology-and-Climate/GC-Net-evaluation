@@ -107,9 +107,8 @@ gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'U.Calg.', statio
 
 varname1 =  ['RH1_w','SpecHum1','P']
 varname2 =  ['RelativeHumidity_w','SpecHum_ucalg','AirPressurehPa']
-varname3 =  ['Relative Humidity 1 (%)','Relative Humidity 2 (%)', 
-             'Specific humidity 1 (g/kg)','Specific humidity 2 (g/kg)',
-             'Air pressure (hPa)']
+varname3 =  ['Relative Humidity 1 (%)', 
+             'Specific humidity 1 (g/kg)','Air pressure (hPa)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'U.Calg.', station+'_rh_pres')
 
 varname1 =  ['VW1','VW2','DW1','DW2']
@@ -210,7 +209,7 @@ for k in range(len(df_interpol['sza'])-1):
 varname1 =  ['TA1','TA2']#,'ta_cs1','ta_cs2']
 varname2 =  ['AirTemperature(C)', 'AirTemperature(C)']#, 'AirTemperatureC', 'AirTemperatureC']
 varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)']#,'Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'EGP', station+'_temp')
+gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3,'PROMICE', station+'_temp')
 
 
 varname1 =  ['RH1_w', 'RH2_w','SpecHum1','SpecHum2','P']
