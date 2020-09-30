@@ -5,6 +5,23 @@ Effect of sampling choices and impact of uncertainty on surface energy budget ca
 
 B.Vandecrux, N. Karlson, J. E. Box
 
+# Installation
+To run the scripts you need standard packages:
+- numpy
+- pandas
+- matplolib
+- datetime
+- sklearn
+- math
+
+but also:
+```
+pip install git+https://github.com/GEUS-PROMICE/pyNEAD.git
+pip install windrose
+pip install jaws
+pip install pytablewriter
+pip install pytz
+```
  
 
 # EastGRIP

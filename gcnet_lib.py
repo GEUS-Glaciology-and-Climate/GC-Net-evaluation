@@ -75,7 +75,10 @@ def load_promice(path_promice):
     df_pro['time'] = df_pro.Year * np.nan
     
     for i, y in enumerate(df_pro.Year.values):
-        tmp = datetime.datetime(int(y), df_pro['MonthOfYear'].values[i], df_pro['DayOfMonth'].values[i],df_pro['HourOfDay(UTC)'].values[i])
+        tmp = datetime.datetime(int(y), 
+                                df_pro['MonthOfYear'].values[i],
+                                df_pro['DayOfMonth'].values[i],
+                                df_pro['HourOfDay(UTC)'].values[i])
         df_pro.time[i] = tmp.replace(tzinfo=pytz.UTC)
     
     #set invalid values (-999) to nan 
