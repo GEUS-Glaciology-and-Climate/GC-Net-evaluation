@@ -23,30 +23,70 @@ import math
 from matplotlib.patches import Patch
 import pytz
 import sunposition as sunpos
+import nead.nead_io as nead
 
 #%%
-def load_gcnet(path_gc, station):
-    df_gc_m = pd.read_csv('Input/Gc-net_documentation_Nov_10_2000.csv',sep=';')
-    station_id = df_gc_m.loc[df_gc_m['Station Name']==station]['StationID'].values[0]
-    filename = path_gc + str(station_id).zfill(2) + 'c.dat_Req1957.nc'
-    ds = xr.open_dataset(filename)
-    df_gc = ds.to_dataframe()
-    df_gc=df_gc.reset_index()
+def load_gcnet(filename):
+    df_gc = nead.read_nead('Input/GC-Net/'+filename)
+    df_gc[df_gc==-999.0]=np.nan
+    
+    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)- pd.Timedelta(hours=1) #.dt.tz_localize('UTC')
+    df_gc['TA1']=df_gc['TA1']-273.15
+    df_gc['TA2']=df_gc['TA2']-273.15
+    df_gc['ta_cs1']= np.nan #df_gc['ta_cs1']-273.15
+    df_gc['ta_cs2']= np.nan #df_gc['ta_cs2']-273.15
+    df_gc['fsds_adjusted']= np.nan 
+    df_gc['fsus_adjusted']= np.nan 
+    df_gc['alb']= df_gc['OSWR']/df_gc['ISWR'] 
+    df_gc.loc[df_gc['alb']>1,'alb']=np.nan
+    df_gc.loc[df_gc['alb']<0,'alb']=np.nan
+    df_gc.loc[df_gc['ISWR']<100, 'Albedo'] = np.nan
+    df_gc['RH1'] = df_gc['RH1']*100
+    df_gc['RH2'] = df_gc['RH2']*100
+    df_gc['RH1_w'] = RH_ice2water(df_gc['RH1'] ,df_gc['TA1'])
+    df_gc['RH2_w'] = RH_ice2water(df_gc['RH2'] ,df_gc['TA2'])
+    df_gc['P']=df_gc['P']/100
+    df_gc['SpecHum1'] = RH2SpecHum(df_gc['RH1'], df_gc['TA1'], df_gc['P'] )*1000
+    df_gc['SpecHum2'] = RH2SpecHum(df_gc['RH2'], df_gc['TA2'], df_gc['P'] )*1000
     return df_gc
 
 #%%
-def load_promice(path_promice):
-    df_promice = pd.read_csv(path_promice, delim_whitespace=True)
-    df_promice['time'] = df_promice.Year * np.nan
-    df_promice['timestamp'] = df_promice.time
+def load_ucalg(path_promice):
+    df_samira = pd.read_csv(path_promice, delim_whitespace=True)
+    df_samira['time'] = df_samira.Year * np.nan
+    df_samira['timestamp'] = df_samira.time
 
-    for i, y in enumerate(df_promice.Year.values):
-        tmp = datetime.datetime(int(y), 1, 1)   + datetime.timedelta( days = df_promice.DayOfYear.values[i], hours = df_promice.HourOfDayUTC.values[i]-1) 
-        df_promice.time[i] = tmp.replace(tzinfo=pytz.UTC)
+    for i, y in enumerate(df_samira.Year.values):
+        tmp = datetime.datetime(int(y), 1, 1)   + datetime.timedelta( days = df_samira.DayOfYear.values[i], hours = df_samira.HourOfDayUTC.values[i]-1) 
+        df_samira.time[i] = tmp.replace(tzinfo=pytz.UTC)
     #set invalid values (-999) to nan 
-    df_promice[df_promice==-999.0]=np.nan
-    return df_promice
+    df_samira[df_samira==-999.0]=np.nan
+    df_samira['Albedo'] = df_samira['ShortwaveRadiationUpWm2'] / df_samira['ShortwaveRadiationDownWm2']
+    df_samira.loc[df_samira['ShortwaveRadiationDownWm2']<100, 'Albedo'] = np.nan
+    df_samira['RelativeHumidity_w'] = RH_ice2water(df_samira['RelativeHumidity'] ,
+                                                       df_samira['AirTemperatureC'])
+    df_samira['SpecHum_ucalg'] = RH2SpecHum(df_samira['RelativeHumidity'] ,
+                                                           df_samira['AirTemperatureC'] ,
+                                                           df_samira['AirPressurehPa'] )*1000
+    return df_samira
 
+def load_promice(path_promice):
+    df_pro = pd.read_csv(path_promice,delim_whitespace=True)
+    df_pro['time'] = df_pro.Year * np.nan
+    
+    for i, y in enumerate(df_pro.Year.values):
+        tmp = datetime.datetime(int(y), df_pro['MonthOfYear'].values[i], df_pro['DayOfMonth'].values[i],df_pro['HourOfDay(UTC)'].values[i])
+        df_pro.time[i] = tmp.replace(tzinfo=pytz.UTC)
+    
+    #set invalid values (-999) to nan 
+    df_pro[df_pro==-999.0]=np.nan
+    df_pro['Albedo'] = df_pro['ShortwaveRadiationUp(W/m2)'] / df_pro['ShortwaveRadiationDown(W/m2)']
+    df_pro.loc[df_pro['Albedo']>1,'Albedo']=np.nan
+    df_pro.loc[df_pro['Albedo']<0,'Albedo']=np.nan
+
+    df_pro['RelativeHumidity_w'] = RH_ice2water(df_pro['RelativeHumidity(%)'] ,
+                                                       df_pro['AirTemperature(C)'])
+    return df_pro
 #%% 
 def plot_comp(df_all, df_interpol, varname1, varname2, varname3,txt2, figure_name):
     fig, ax = plt.subplots(np.size(varname1),2,
@@ -95,7 +135,7 @@ def plot_comp(df_all, df_interpol, varname1, varname2, varname3,txt2, figure_nam
 #%% 
 def tab_comp(df_all, df_interpol, varname1, varname2, filename):
     df = pd.DataFrame(columns=varname1)
-    df['metric'] = ['RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N', 'RMSE', 'ME', 'R2', 'N']
+    df['metric'] = ['RMSE', 'bias', 'R2', 'N', 'RMSE', 'bias', 'R2', 'N', 'RMSE', 'bias', 'R2', 'N']
     df['time'] = ['all', 'all', 'all', 'all', 'night', 'night', 'night', 'night', 'day',  'day',  'day',  'day']
     df.set_index(['metric','time'],inplace=True)
     
@@ -112,7 +152,7 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
         y2=y[~np.isnan(y)&~np.isnan(x)]
         
         df.loc[('R2','all'),varname1[i]] = r2_score(x2,y2)
-        df.loc[('ME','all'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('bias','all'),varname1[i]] = np.mean(x2-y2)
         df.loc[('RMSE','all'),varname1[i]] = mean_squared_error(x2,y2)
         df.loc[('N','all'),varname1[i]] = len(x2)
              
@@ -123,7 +163,7 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
         y2=y[~np.isnan(y)&~np.isnan(x)]
         
         df.loc[('R2','night'),varname1[i]] = r2_score(x2,y2)
-        df.loc[('ME','night'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('bias','night'),varname1[i]] = np.mean(x2-y2)
         df.loc[('RMSE','night'),varname1[i]] = mean_squared_error(x2,y2)
         df.loc[('N','night'),varname1[i]] = len(x2)
         
@@ -133,7 +173,7 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
         y2=y[~np.isnan(y)&~np.isnan(x)]
         
         df.loc[('R2','day'),varname1[i]] = r2_score(x2,y2)
-        df.loc[('ME','day'),varname1[i]] = np.mean(x2-y2)
+        df.loc[('bias','day'),varname1[i]] = np.mean(x2-y2)
         df.loc[('RMSE','day'),varname1[i]] = mean_squared_error(x2,y2)
         df.loc[('N','day'),varname1[i]] = len(x2)
     trunc = lambda x: math.trunc(100 * x) / 100;

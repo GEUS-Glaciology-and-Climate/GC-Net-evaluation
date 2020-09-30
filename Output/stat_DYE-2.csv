@@ -1,13 +1,13 @@
 ,metric,time,TA1,TA2
 0,RMSE,all,0.1,0.21
-1,ME,all,0.12,0.17
+1,bias,all,0.12,0.17
 2,R2,all,0.99,0.99
 3,N,all,3997.0,3997.0
 4,RMSE,night,0.13,0.24
-5,ME,night,0.3,0.4
+5,bias,night,0.3,0.4
 6,R2,night,0.99,0.98
 7,N,night,24.0,24.0
 8,RMSE,day,0.07,0.09
-9,ME,day,-0.02,-0.06
+9,bias,day,-0.02,-0.06
 10,R2,day,0.99,0.99
 11,N,day,1393.0,1393.0
