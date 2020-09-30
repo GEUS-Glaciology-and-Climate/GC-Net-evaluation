@@ -106,5 +106,9 @@ pip install pytz
 
 
 # Summit
-on the way...
-
+## Relative Humidity and Air Pressure
+![-](Output/Summit_rh_pres.png)
+## Air temperature
+![-](Output/Summit_temp.png)
+## Wind speed and direction
+![-](Output/Summit_wind.png)

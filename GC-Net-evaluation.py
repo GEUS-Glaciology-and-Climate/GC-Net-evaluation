@@ -12,12 +12,9 @@ tip list:
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import datetime
-import nead.nead_io as nead
 import gcnet_lib as gnl
 from jaws import sunposition as sunpos
 from windrose import WindroseAxes
-import pytz
 
 np.seterr(invalid='ignore')
 
@@ -295,6 +292,8 @@ df_sum['time'] =pd.to_datetime(df_sum[['year','month','day','hour']], utc = True
 #                                       df_sum['day'].values[d],
 #                                       df_sum['hour'].values[d]) 
 #                   for d,y in enumerate(df_sum['year'].values)]
+df_sum.loc[df_sum['RelativeHumidity_w']>100, 'RelativeHumidity_w'] = np.nan
+
 df_sum['RelativeHumidity(%)'] = gnl.RH_ice2water(df_sum['RelativeHumidity_w'] ,
                                                    df_sum['AirTemperature(C)'])
 df_sum['SpecificHumidity(g/kg)'] = gnl.RH2SpecHum(df_sum['RelativeHumidity(%)'] ,
@@ -345,21 +344,21 @@ varname3 =  ['RelativeHumidity(%)','RelativeHumidity(%)',
               'SpecificHumidity(g/kg)','SpecificHumidity(g/kg)','AirPressure(hPa)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,station, station+'_rh_pres')
 
-varname1 =  ['VW1','VW2','DW1','DW2']
-varname2 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
-varname3 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
-gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,station, station+'_wind')
+# varname1 =  ['VW1','VW2','DW1','DW2']
+# varname2 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
+# varname3 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
+# gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,station, station+'_wind')
 
 
-fig = plt.figure(figsize=(10,8))
-ax = WindroseAxes.from_ax(fig=fig)
-ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeed(m/s)'])
-ws[ws<np.nanmean(ws)] = np.nan
-wd = df_interpol['WindDirection(d)']
-ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
-ax.set_legend(title='Wind speed (m/s)')
-ax.set_title(station)
-fig.savefig('./Output/'+station+'_wind_bias_dir.png',bbox_inches='tight', dpi=200)
+# fig = plt.figure(figsize=(10,8))
+# ax = WindroseAxes.from_ax(fig=fig)
+# ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeed(m/s)'])
+# ws[ws<np.nanmean(ws)] = np.nan
+# wd = df_interpol['WindDirection(d)']
+# ax.bar(wd, ws, normed=True, opening=0.8, edgecolor='white')
+# ax.set_legend(title='Wind speed (m/s)')
+# ax.set_title(station)
+# fig.savefig('./Output/'+station+'_wind_bias_dir.png',bbox_inches='tight', dpi=200)
 
 #% making day_night table
 

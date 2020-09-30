@@ -11,18 +11,13 @@ tip list:
 """
 import numpy as np
 import pandas as pd
-import xarray as xr
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import datetime
 from sklearn.metrics import mean_squared_error, r2_score
-import sys
-sys.path.insert(0,'../jaws/jaws')
 from pytablewriter import MarkdownTableWriter
 import math      
 from matplotlib.patches import Patch
 import pytz
-import sunposition as sunpos
 import nead.nead_io as nead
 
 #%%
@@ -95,7 +90,7 @@ def plot_comp(df_all, df_interpol, varname1, varname2, varname3,txt2, figure_nam
     fig, ax = plt.subplots(np.size(varname1),2,
                            figsize=(13, 3*np.size(varname1)),
                            gridspec_kw={'width_ratios': [3, 1]})
-    fig.subplots_adjust(hspace=0.6, wspace=0.02)
+    fig.subplots_adjust(hspace=0.6, wspace=0.02+0.1/np.size(varname1))
     for i in range(np.size(varname1)):
         j = 0
         # ax[i, j].plot(df_all.index, df_all[varname1[i]],
