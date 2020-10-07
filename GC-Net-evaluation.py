@@ -17,6 +17,8 @@ from jaws import sunposition as sunpos
 from windrose import WindroseAxes
 
 np.seterr(invalid='ignore')
+import warnings
+warnings.filterwarnings("ignore")
 
 #%% Comparison at Dye-2 with the U. Calg. AWS
 # Loading gc-net data
@@ -187,7 +189,7 @@ df_gc.loc[df_gc['P']<500, 'P'] = np.nan
 # df_all['DW1']=360-df_all['DW1']
 
 # loading data from CEN
-path_promice = '../../AWS_Processing/Input/PROMICE/CEN_hour_v03.txt'
+path_promice = 'Input/PROMICE/CEN_hour_v03.txt'
 df_cen = gnl.load_promice(path_promice)
 df_cen['AirPressure(hPa)'].loc[df_cen['AirPressure(hPa)']>900] = np.nan
 

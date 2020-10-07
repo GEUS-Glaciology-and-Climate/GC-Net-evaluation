@@ -18,16 +18,14 @@ from pytablewriter import MarkdownTableWriter
 import math      
 from matplotlib.patches import Patch
 import pytz
-import nead.nead_io as nead
+import nead
 
 #%%
 def load_gcnet(filename):
-    df_gc = nead.read_nead('Input/GC-Net/'+filename)
+    df_gc = nead.read('Input/GC-Net/'+filename)
     df_gc[df_gc==-999.0]=np.nan
     
-    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)- pd.Timedelta(hours=1) #.dt.tz_localize('UTC')
-    df_gc['TA1']=df_gc['TA1']-273.15
-    df_gc['TA2']=df_gc['TA2']-273.15
+    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)- pd.Timedelta(hours=1) 
     df_gc['ta_cs1']= np.nan #df_gc['ta_cs1']-273.15
     df_gc['ta_cs2']= np.nan #df_gc['ta_cs2']-273.15
     df_gc['fsds_adjusted']= np.nan 
@@ -36,11 +34,8 @@ def load_gcnet(filename):
     df_gc.loc[df_gc['alb']>1,'alb']=np.nan
     df_gc.loc[df_gc['alb']<0,'alb']=np.nan
     df_gc.loc[df_gc['ISWR']<100, 'Albedo'] = np.nan
-    df_gc['RH1'] = df_gc['RH1']*100
-    df_gc['RH2'] = df_gc['RH2']*100
     df_gc['RH1_w'] = RH_ice2water(df_gc['RH1'] ,df_gc['TA1'])
     df_gc['RH2_w'] = RH_ice2water(df_gc['RH2'] ,df_gc['TA2'])
-    df_gc['P']=df_gc['P']/100
     df_gc['SpecHum1'] = RH2SpecHum(df_gc['RH1'], df_gc['TA1'], df_gc['P'] )*1000
     df_gc['SpecHum2'] = RH2SpecHum(df_gc['RH2'], df_gc['TA2'], df_gc['P'] )*1000
     return df_gc
