@@ -16,7 +16,7 @@ To run the scripts you need standard packages:
 
 but also:
 ```
-pip install git+https://github.com/GEUS-PROMICE/pyNEAD.git
+pip install git+https://github.com/GEUS-PROMICE/pyNEAD.git@04af3bc350884cb0f2f5316210bcfd35d5ea7df8
 pip install windrose
 pip install jaws
 pip install pytablewriter
