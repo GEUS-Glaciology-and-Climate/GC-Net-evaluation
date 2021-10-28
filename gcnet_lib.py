@@ -23,6 +23,7 @@ import nead
 #%%
 def load_gcnet(filename):
     df_gc = nead.read('Input/GC-Net/'+filename)
+    # df_gc = ds.to_dataframe()
     df_gc[df_gc==-999.0]=np.nan
     
     df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)- pd.Timedelta(hours=1) 
