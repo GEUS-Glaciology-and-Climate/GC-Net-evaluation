@@ -30,41 +30,41 @@
 # <a id='s1' />0 SwissCamp10m
 no historical file to compare
 # <a id='s2' />1 SwissCamp
-![](out/L1_vs_historical_files/SwissCamp_1.png)
+![](SwissCamp_1.png)
 ![](out/L1_vs_historical_files/SwissCamp_2.png)
 # <a id='s3' />2 CrawfordPoint1
-![](out/L1_vs_historical_files/CrawfordPoint1_1.png)
+![](CrawfordPoint1_1.png)
 ![](out/L1_vs_historical_files/CrawfordPoint1_2.png)
 # <a id='s4' />3 NASA-U
-![](out/L1_vs_historical_files/NASA-U_1.png)
+![](NASA-U_1.png)
 ![](out/L1_vs_historical_files/NASA-U_2.png)
 # <a id='s5' />4 GITS
-![](out/L1_vs_historical_files/GITS_1.png)
+![](GITS_1.png)
 ![](out/L1_vs_historical_files/GITS_2.png)
 # <a id='s6' />5 Humboldt
 no historical file to compare
 # <a id='s7' />6 Summit
-![](out/L1_vs_historical_files/Summit_1.png)
+![](Summit_1.png)
 ![](out/L1_vs_historical_files/Summit_2.png)
 # <a id='s8' />7 Tunu-N
-![](out/L1_vs_historical_files/Tunu-N_1.png)
+![](Tunu-N_1.png)
 ![](out/L1_vs_historical_files/Tunu-N_2.png)
 # <a id='s9' />8 DYE2
-![](out/L1_vs_historical_files/DYE2_1.png)
+![](DYE2_1.png)
 ![](out/L1_vs_historical_files/DYE2_2.png)
 # <a id='s10' />9 JAR1
 no historical file to compare
 # <a id='s11' />10 Saddle
-![](out/L1_vs_historical_files/Saddle_1.png)
+![](Saddle_1.png)
 ![](out/L1_vs_historical_files/Saddle_2.png)
 # <a id='s12' />11 SouthDome
-![](out/L1_vs_historical_files/SouthDome_1.png)
+![](SouthDome_1.png)
 ![](out/L1_vs_historical_files/SouthDome_2.png)
 # <a id='s13' />12 NASA-E
-![](out/L1_vs_historical_files/NASA-E_1.png)
+![](NASA-E_1.png)
 ![](out/L1_vs_historical_files/NASA-E_2.png)
 # <a id='s14' />13 CP2
-![](out/L1_vs_historical_files/CP2_1.png)
+![](CP2_1.png)
 ![](out/L1_vs_historical_files/CP2_2.png)
 # <a id='s15' />14 NGRIP
 no historical file to compare

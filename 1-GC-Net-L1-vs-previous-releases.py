@@ -64,7 +64,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
     plt.legend()
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
-    f.write('\n![](out/L1_vs_historical_files/'+site+'_1.png)')
+    f.write('\n![]('+site+'_1.png)')
     
     fig, ax = plt.subplots(8,1, figsize=(10,10))
     plt.subplots_adjust(top=0.95)
