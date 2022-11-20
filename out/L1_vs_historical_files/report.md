@@ -1,12 +1,12 @@
 
-# 0 Swiss Camp 10m
+# 0 SwissCamp10m
 no historical file to compare
-# 1 Swiss Camp
-![](out/L1_vs_historical_files/Swiss Camp_1.png)
-![](out/L1_vs_historical_files/Swiss Camp_2.png)
-# 2 Crawford Point 1
-![](out/L1_vs_historical_files/Crawford Point 1_1.png)
-![](out/L1_vs_historical_files/Crawford Point 1_2.png)
+# 1 SwissCamp
+![](out/L1_vs_historical_files/SwissCamp_1.png)
+![](out/L1_vs_historical_files/SwissCamp_2.png)
+# 2 CrawfordPoint1
+![](out/L1_vs_historical_files/CrawfordPoint1_1.png)
+![](out/L1_vs_historical_files/CrawfordPoint1_2.png)
 # 3 NASA-U
 ![](out/L1_vs_historical_files/NASA-U_1.png)
 ![](out/L1_vs_historical_files/NASA-U_2.png)
@@ -29,9 +29,9 @@ no historical file to compare
 # 10 Saddle
 ![](out/L1_vs_historical_files/Saddle_1.png)
 ![](out/L1_vs_historical_files/Saddle_2.png)
-# 11 South Dome
-![](out/L1_vs_historical_files/South Dome_1.png)
-![](out/L1_vs_historical_files/South Dome_2.png)
+# 11 SouthDome
+![](out/L1_vs_historical_files/SouthDome_1.png)
+![](out/L1_vs_historical_files/SouthDome_2.png)
 # 12 NASA-E
 ![](out/L1_vs_historical_files/NASA-E_1.png)
 ![](out/L1_vs_historical_files/NASA-E_2.png)
@@ -44,25 +44,25 @@ no historical file to compare
 no historical file to compare
 # 16 KAR
 no historical file to compare
-# 17  JAR2
+# 17 JAR2
 no historical file to compare
-# 18  KULU
+# 18 KULU
 no historical file to compare
-# 19  JAR3
+# 19 JAR3
 no historical file to compare
-# 20  Aurora
+# 20 Aurora
 no historical file to compare
-# 21  Petermann Glacier
+# 21 PetermannGlacier
 no historical file to compare
-# 22  Petermann ELA
+# 22 PetermannELA
 no historical file to compare
-# 23  NEEM
+# 23 NEEM
 no historical file to compare
-# 24  E-GRIP
+# 24 E-GRIP
 no historical file to compare
-# 30  LAR1
+# 30 LAR1
 no historical file to compare
-# 31  LAR2
+# 31 LAR2
 no historical file to compare
-# 32  LAR3
+# 32 LAR3
 no historical file to compare

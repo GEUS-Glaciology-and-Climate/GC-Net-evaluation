@@ -34,6 +34,7 @@ f = open("out/L1_vs_historical_files/report.md", "w")
 for site, ID in zip(site_list.Name,site_list.ID):
     print(site)
     plt.close('all')
+    site = site.replace(' ','')
     f.write('\n# '+str(ID)+ ' ' + site)
     df_L1 = nead.read(path_to_L1 + '%0.2i-%s.csv'%(ID, site.replace(' ',''))).to_dataframe()
     df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
