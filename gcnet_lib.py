@@ -20,13 +20,12 @@ from matplotlib.patches import Patch
 import pytz
 import nead
 
-#%%
 def load_gcnet(filename):
     df_gc = nead.read('Input/GC-Net/'+filename)
-    # df_gc = ds.to_dataframe()
+    df_gc = df_gc.to_dataframe()
     df_gc[df_gc==-999.0]=np.nan
     
-    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)- pd.Timedelta(hours=1) 
+    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)
     df_gc['ta_cs1']= np.nan #df_gc['ta_cs1']-273.15
     df_gc['ta_cs2']= np.nan #df_gc['ta_cs2']-273.15
     df_gc['fsds_adjusted']= np.nan 
@@ -41,7 +40,6 @@ def load_gcnet(filename):
     df_gc['SpecHum2'] = RH2SpecHum(df_gc['RH2'], df_gc['TA2'], df_gc['P'] )*1000
     return df_gc
 
-#%%
 def load_ucalg(path_promice):
     df_samira = pd.read_csv(path_promice, delim_whitespace=True)
     df_samira['time'] = df_samira.Year * np.nan
@@ -62,17 +60,9 @@ def load_ucalg(path_promice):
     return df_samira
 
 def load_promice(path_promice):
-    df_pro = pd.read_csv(path_promice,delim_whitespace=True)
-    df_pro['time'] = df_pro.Year * np.nan
-    
-    for i, y in enumerate(df_pro.Year.values):
-        tmp = datetime.datetime(int(y), 
-                                df_pro['MonthOfYear'].values[i],
-                                df_pro['DayOfMonth'].values[i],
-                                df_pro['HourOfDay(UTC)'].values[i])
-        df_pro.time[i] = tmp.replace(tzinfo=pytz.UTC)
-    
-    #set invalid values (-999) to nan 
+    df_pro = pd.read_csv(path_promice,sep='\t', index_col=False)
+    df_pro['time'] = pd.to_datetime(df_pro['time'])
+    df_pro = df_pro.set_index('time')
     df_pro[df_pro==-999.0]=np.nan
     df_pro['Albedo'] = df_pro['ShortwaveRadiationUp(W/m2)'] / df_pro['ShortwaveRadiationDown(W/m2)']
     df_pro.loc[df_pro['Albedo']>1,'Albedo']=np.nan
@@ -227,7 +217,6 @@ def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
 
     fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
 
-#%% Relative humidity tools
 def RH_water2ice(RH, T):
     # switch ONLY SUBFREEZING timesteps to with-regards-to-ice
 

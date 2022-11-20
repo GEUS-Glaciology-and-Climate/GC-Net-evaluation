@@ -13,13 +13,94 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import gcnet_lib as gnl
-from jaws import sunposition as sunpos
+import sunposition as sunpos
 from windrose import WindroseAxes
-
+import nead
 np.seterr(invalid='ignore')
 import warnings
 warnings.filterwarnings("ignore")
+import xarray as xr
 
+jaws_alias = {'RH1':'rh1','RH2':'rh2','TA1':'ta_tc2','TA2':'ta_tc2','P':'ps',
+              'SZA':'zenith_angle', 'ISWR':'fsds', 'OSWR':'fsus',
+              'TA3':'ta_cs1','TA4':'ta_cs2','VW1':'wspd1','VW2':'wspd2',
+              'DW1':'wdir1','DW2':'wdir1','HS1':'snh1', 'HS2':'snh2'}
+import tocgen
+
+# %% Comparing different file versions
+site_list = pd.read_csv('Input/GC-Net_location.csv',header=0)[1:2]
+path_to_L1 =  '../GC-Net-Level-1-data-processing/L1/'
+
+f = open("out/L1_vs_historical_files/report.md", "w")
+
+for site, ID in zip(site_list.Name,site_list.ID):
+    print(site)
+    plt.close('all')
+    f.write('# '+str(ID)+ ' ' + site)
+    df_L1 = nead.read(path_to_L1 + '%0.2i-%s.csv'%(ID, site.replace(' ',''))).to_dataframe()
+    df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
+    df_L1 = df_L1.set_index('timestamp')
+    df_L1[df_L1==-999] = np.nan
+    
+    path_to_hist_data = '../../../Data/AWS/GC-Net/20190501_jaws/'
+    try:
+        df_hist_jaws = xr.open_dataset(path_to_hist_data+'%0.2ic.dat_Req1957.nc'%ID).sel(nbnd=1).squeeze().to_dataframe()
+    except:
+        f.write('no historical file to compare')
+        continue
+    df_hist_jaws.index = df_hist_jaws.index + pd.Timedelta(minutes=30)
+    df_hist_jaws.index = pd.to_datetime(df_hist_jaws.index, utc=True)
+    df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] = df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] -273.15
+    df_hist_jaws.ps = df_hist_jaws.ps/100
+    
+    fig, ax = plt.subplots(3,1, figsize=(10,10),sharex=True)
+    plt.subplots_adjust(top=0.95)
+    # for i, var in enumerate(['RH1','RH2','TA1','TA2','P','ISWR','OSWR', 'SZA']):
+    for i, var in enumerate(['ISWR','OSWR', 'SZA']):
+        df_L1[var].plot(ax=ax[i], label = 'L1')
+        df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'hist', alpha=0.7)
+        ax[i].set_ylabel(var)
+        if i<len(ax)-1:
+            ax[i].xaxis.set_ticklabels([])
+    plt.legend()
+    plt.suptitle(site)
+    fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
+    f.write('![](out/L1_vs_historical_files/'+site+'_1.png)')
+    
+    fig, ax = plt.subplots(8,1, figsize=(10,10))
+    plt.subplots_adjust(top=0.95)
+    for i, var in enumerate(['TA3','TA4','VW1','VW2','DW1','DW2','HS1', 'HS2']):
+        df_L1[var].plot(ax=ax[i], label = 'L1')
+        df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'hist', alpha=0.7)
+        ax[i].set_ylabel(var)
+        if i<len(ax)-1:
+            ax[i].xaxis.set_ticklabels([])
+    plt.legend()
+    plt.suptitle(site)
+    fig.savefig('out/L1_vs_historical_files/'+site+'_2.png')
+    f.write('![](out/L1_vs_historical_files/'+site+'_2.png)')
+
+f.close()
+
+tocgen.processFile('out/L1_vs_historical_files/report.md','out/L1_vs_historical_files/report.md')
+#%%
+fig, ax = plt.subplots(1,1)
+df_L1.P.plot(ax=ax)
+(df_hist_jaws.ps/100).plot(ax=ax)
+plt.legend()
+#%%
+fig, ax = plt.subplots(2,1)
+df_L1.TA1.plot(ax=ax[0], alpha=0.7)
+(df_hist_jaws.ta_tc1-273.15).plot(ax=ax[0], alpha=0.7)
+df_L1.TA2.plot(ax=ax[1], alpha=0.7)
+(df_hist_jaws.ta_tc2-273.15).plot(ax=ax[1], alpha=0.7)
+
+df_L1.TA3.plot(ax=ax[0], alpha=0.7)
+(df_hist_jaws.ta_cs1-273.15).plot(ax=ax[0], alpha=0.7)
+df_L1.TA4.plot(ax=ax[1], alpha=0.7)
+(df_hist_jaws.ta_cs2-273.15).plot(ax=ax[1], alpha=0.7)
+
+plt.legend()
 #%% Comparison at Dye-2 with the U. Calg. AWS
 # Loading gc-net data
 station = 'DYE-2'
@@ -178,7 +259,7 @@ gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_'+station)
 #%% GITS-Camp Century
 # Loading gc-net data
 station = 'CEN'
-df_gc = gnl.load_gcnet('4_gits.csv')
+df_gc = gnl.load_gcnet('gits.csv')
 df_gc = df_gc.loc[df_gc['time']<'2019-01-01',:]
 # df_gc['OSWR']= df_gc['OSWR']/2
 # df_gc['ISWR']= df_gc['ISWR']/2
@@ -226,6 +307,29 @@ varname3 = ['SWdown (W/m2)','SWdown (W/m2)',#'SWdown tilt corrected (W/m2)','SWd
             'Albedo (-)']
 gnl.plot_comp(df_all, df_interpol, varname1, varname2,varname3, 'CEN', station+'_SWrad')
 
+# df_gc=df_gc.set_index('timestamp')
+# df_cen=df_cen.set_index('time')
+# df_gc.index=pd.to_datetime(df_gc.index)
+# df_cen.index=pd.to_datetime(df_cen.index)
+# # %% linear regression
+# msk = df_gc.index.intersection(df_cen.index)
+# x = df_gc.loc[msk, 'ISWR'].values
+# y = df_cen.loc[msk, 'ShortwaveRadiationDown(W/m2)'].values
+# msk = (~np.isnan(x+y) & (y>200)& (x>30))
+# p = np.linalg.lstsq(x[msk][..., None], y[msk][..., None])[0]
+
+# plt.figure()
+# # plt.plot(x)
+# plt.plot(y)
+# plt.plot(x*0.385)
+
+# plt.figure()
+# plt.scatter(x,y)
+# plt.scatter(x[msk], y[msk])
+
+# plt.figure()
+# plt.scatter(x/1.82,y)
+# # %% 
 varname1 =  ['TA1','TA2']#,'ta_cs1','ta_cs2']
 varname2 =  ['AirTemperature(C)', 'AirTemperature(C)']#, 'AirTemperatureC', 'AirTemperatureC']
 varname3 =  ['Air temperature 1 (deg C)', 'Air temperature 2 (deg C)']#,'Air temperature cs1 (deg C)','Air temperature cs2 (deg C)']
@@ -264,7 +368,7 @@ gnl.tab_comp(df_all, df_interpol, varname1, varname2, 'Output/stat_'+station)
 #%% Summit
 # Loading gc-net data
 station = 'Summit'
-df_gc = gnl.load_gcnet('6_summit.csv')
+df_gc = gnl.load_gcnet('summit.csv')
 df_gc = df_gc.loc[df_gc['time']<'2019-01-01',:]
 df_gc.loc[df_gc['P']<500, 'P'] = np.nan
 df_gc.loc[df_gc['RH1']>100, 'RH1'] = np.nan
@@ -350,8 +454,11 @@ gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,station, station
 # varname2 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
 # varname3 =  [ 'WindSpeed(m/s)', 'WindSpeed(m/s)','WindDirection(d)','WindDirection(d)']
 # gnl.plot_comp(df_all, df_interpol, varname1, varname2, varname3,station, station+'_wind')
-
-
+plt.figure()
+df_all.loc['2017-05-01':].P.plot(label = 'GC-Net')
+df_interpol.loc['2017-05-01':]['AirPressure(hPa)'].plot(label='NOAA')
+plt.title('mean difference: '+str((df_all.loc['2017-05-01':].P-df_interpol.loc['2017-05-01':]['AirPressure(hPa)']).mean()))
+plt.legend()
 # fig = plt.figure(figsize=(10,8))
 # ax = WindroseAxes.from_ax(fig=fig)
 # ws = np.abs(df_interpol['VW1']-df_interpol['WindSpeed(m/s)'])
