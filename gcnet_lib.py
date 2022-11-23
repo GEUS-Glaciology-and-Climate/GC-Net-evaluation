@@ -19,28 +19,10 @@ import math
 from matplotlib.patches import Patch
 import pytz
 import nead
+from os import listdir
+from os.path import isfile, join
 
-def load_gcnet(filename):
-    df_gc = nead.read('Input/GC-Net/'+filename)
-    df_gc = df_gc.to_dataframe()
-    df_gc[df_gc==-999.0]=np.nan
-    
-    df_gc['time'] = pd.to_datetime(df_gc['timestamp'].values)
-    df_gc['ta_cs1']= np.nan #df_gc['ta_cs1']-273.15
-    df_gc['ta_cs2']= np.nan #df_gc['ta_cs2']-273.15
-    df_gc['fsds_adjusted']= np.nan 
-    df_gc['fsus_adjusted']= np.nan 
-    df_gc['alb']= df_gc['OSWR']/df_gc['ISWR'] 
-    df_gc.loc[df_gc['alb']>1,'alb']=np.nan
-    df_gc.loc[df_gc['alb']<0,'alb']=np.nan
-    df_gc.loc[df_gc['ISWR']<100, 'Albedo'] = np.nan
-    df_gc['RH1_w'] = RH_ice2water(df_gc['RH1'] ,df_gc['TA1'])
-    df_gc['RH2_w'] = RH_ice2water(df_gc['RH2'] ,df_gc['TA2'])
-    df_gc['SpecHum1'] = RH2SpecHum(df_gc['RH1'], df_gc['TA1'], df_gc['P'] )*1000
-    df_gc['SpecHum2'] = RH2SpecHum(df_gc['RH2'], df_gc['TA2'], df_gc['P'] )*1000
-    return df_gc
-
-def load_ucalg(path_promice):
+def load_ucalg(path_promice='Input/data_DYE2_Samira_hour.txt'):
     df_samira = pd.read_csv(path_promice, delim_whitespace=True)
     df_samira['time'] = df_samira.Year * np.nan
     df_samira['timestamp'] = df_samira.time
@@ -50,6 +32,7 @@ def load_ucalg(path_promice):
         df_samira.time[i] = tmp.replace(tzinfo=pytz.UTC)
     #set invalid values (-999) to nan 
     df_samira[df_samira==-999.0]=np.nan
+    df_samira = df_samira.set_index('time')
     df_samira['Albedo'] = df_samira['ShortwaveRadiationUpWm2'] / df_samira['ShortwaveRadiationDownWm2']
     df_samira.loc[df_samira['ShortwaveRadiationDownWm2']<100, 'Albedo'] = np.nan
     df_samira['RelativeHumidity_w'] = RH_ice2water(df_samira['RelativeHumidity'] ,
@@ -57,20 +40,66 @@ def load_ucalg(path_promice):
     df_samira['SpecHum_ucalg'] = RH2SpecHum(df_samira['RelativeHumidity'] ,
                                                            df_samira['AirTemperatureC'] ,
                                                            df_samira['AirPressurehPa'] )*1000
+    df_samira = df_samira.rename(columns={'AirPressurehPa':'p_u',
+                                          'AirTemperatureC':'t_u',
+                                          'RelativeHumidity_wrtWater':'rh_u',
+                                          'WindSpeedms':'wspd_u',
+                                          'WindDirectiond':'wdir_u',
+                                          'ShortwaveRadiationDownWm2':'dsr_cor',
+                                          'ShortwaveRadiationUpWm2':'usr_cor',
+                                          'LongwaveRadiationDownWm2':'dlr', 
+                                          'LongwaveRadiationUpWm2':'ulr',
+                                          'Albedo':'albedo',
+                                          'RelativeHumidity_w':'rh_l', 
+                                          'SpecHum_ucalg':'qh_u'})
     return df_samira
 
-def load_promice(path_promice):
-    df_pro = pd.read_csv(path_promice,sep='\t', index_col=False)
-    df_pro['time'] = pd.to_datetime(df_pro['time'])
-    df_pro = df_pro.set_index('time')
-    df_pro[df_pro==-999.0]=np.nan
-    df_pro['Albedo'] = df_pro['ShortwaveRadiationUp(W/m2)'] / df_pro['ShortwaveRadiationDown(W/m2)']
-    df_pro.loc[df_pro['Albedo']>1,'Albedo']=np.nan
-    df_pro.loc[df_pro['Albedo']<0,'Albedo']=np.nan
 
-    df_pro['RelativeHumidity_w'] = RH_ice2water(df_pro['RelativeHumidity(%)'] ,
-                                                       df_pro['AirTemperature(C)'])
-    return df_pro
+def load_dmi():
+    stat_id = '441900'
+    path_to_sec = '../../../Data/AWS/DMI/data/'
+    DMI_aliases = {'101': 't_u', 
+                   '201': 'rh_u', 
+                   '301':'wspd_u',
+                   '365':'wdir_u', 
+                   '401': 'p_u',
+                   '550': 'dsr_cor'}
+    df_sec = pd.read_csv(path_to_sec+str(stat_id)+'.csv',sep=';').rename(columns={'Hour(utc)':'Hour'})
+    df_sec['timestamp'] = pd.to_datetime(df_sec[['Year','Month','Day','Hour']],utc=True)
+    df_sec = df_sec.set_index('timestamp')
+    df_sec = df_sec[DMI_aliases.keys()].rename(columns=DMI_aliases)
+    df_sec['usr_cor'] = np.nan
+    df_sec['ulr'] = np.nan
+    df_sec['dlr'] = np.nan
+    if 'time' in df_sec.columns:
+        df_sec['time'] = pd.to_datetime(df_sec.time, utc=True)
+        df_sec = df_sec.set_index('time')
+    return df_sec.resample('H').mean()
+
+
+def load_noaa():
+    # data source : https://www.esrl.noaa.gov/gmd/dv/data/?site=SUM
+    path_dir = 'Input/Summit/'
+    file_list = [f for f in listdir(path_dir) if isfile(join(path_dir, f))]
+    file_list = [s for s in file_list if "met" in s]
+    df_sec = pd.DataFrame()
+    for i in range(len(file_list)):
+        df = pd.read_csv(path_dir+file_list[i], header=None,  delim_whitespace=True)
+        df.columns =['site', 'year', 'month', 'day', 'hour', 'wdir_u', 
+                        'wspd_u', 'wsf','p_u', 't_l', 't_u', 'ta_top', 'rh_u', 'rf']
+        df_sec = df_sec.append(df)
+    df_sec[df_sec==-999.0]=np.nan
+    df_sec[df_sec==-999.90]=np.nan
+    df_sec[df_sec==-999.99]=np.nan
+    df_sec[df_sec==-99.9]=np.nan
+    df_sec[df_sec==-99]=np.nan
+    df_sec['time'] =pd.to_datetime(df_sec[['year','month','day','hour']], utc = True)
+    df_sec = df_sec.set_index('time')
+    df_sec[['dsr_cor','usr_cor','ulr','dlr']] = np.nan
+    df_sec.loc['2014-09-27':'2017-07-24','rh_u'] = np.nan
+    df_sec.loc[df_sec['rh_u']>120, 'rh_u'] = np.nan
+    # df_sec['RH_i'] = gnl.RH_water2ice(df_sec.RH.values, df_sec.TA.values)
+    return df_sec.resample('H').mean()
 
 
 def plot_comp(df_gc, df_sec, varname1, varname2, varname3,txt2, figure_name):
@@ -89,6 +118,7 @@ def plot_comp(df_gc, df_sec, varname1, varname2, varname3,txt2, figure_name):
                 print('only one level available for', txt2)
             else:
                 i_remove.append(i)
+        
     varname1 = [var for i, var in enumerate(varname1) if i not in i_remove]
     varname2 = [var for i, var in enumerate(varname2) if i not in i_remove]
     varname3 = [var for i, var in enumerate(varname3) if i not in i_remove]            
@@ -99,23 +129,28 @@ def plot_comp(df_gc, df_sec, varname1, varname2, varname3,txt2, figure_name):
                                gridspec_kw={'width_ratios': [2.5, 1]})
         fig.subplots_adjust(left=0.1, hspace=0.6, wspace=0.05)
         for i in range(np.size(varname1)):
+            df1= df_gc.copy()
+            df2= df_sec.copy()
+            # if varname1[i] in ['Alb','NR']:
+            #     df1=df1.resample('D').mean()
+            #     df2=df2.resample('D').mean()
             j = 0
             
-            ax[i, j].plot(df_gc.index, df_gc[varname1[i]], 'b',label= 'GC-Net')
-            ax[i, j].plot(df_sec.index, df_sec[varname2[i]], 'r', label=txt2, alpha=0.7)
+            ax[i, j].plot(df1.index, df1[varname1[i]], 'b',label= 'GC-Net')
+            ax[i, j].plot(df2.index, df2[varname2[i]], 'r', label=txt2, alpha=0.7)
             ax[i, j].legend()
             ax[i, j].set_ylabel(varname3[i])
             ax[i, j].grid()
             
-            x=df_gc[varname1[i]].values
-            y =df_sec[varname2[i]].values
+            x=df1[varname1[i]].values
+            y =df2[varname2[i]].values
             x2=x[~np.isnan(y)&~np.isnan(x)]
             y2=y[~np.isnan(y)&~np.isnan(x)]
             
             j = 1
-            ax[i, j].scatter(df_gc[varname1[i]],df_sec[varname2[i]])
-            min_val = np.nanmin(np.minimum(df_gc[varname1[i]],df_sec[varname2[i]]).values)
-            max_val = np.nanmax(np.maximum(df_gc[varname1[i]],df_sec[varname2[i]]).values)
+            ax[i, j].scatter(df1[varname1[i]],df2[varname2[i]])
+            min_val = np.nanmin(np.minimum(df1[varname1[i]],df2[varname2[i]]).values)
+            max_val = np.nanmax(np.maximum(df1[varname1[i]],df2[varname2[i]]).values)
             ax[i, j].plot([min_val, max_val], [min_val, max_val], 'k--',linewidth=4)
             ax[i, j].set_title(varname3[i])
             if len(x2)>0:
@@ -193,7 +228,7 @@ def tab_comp(df_gc, df_sec, varname1, varname2, filename):
         writer.stream = f
         writer.write_table()
     
-#%% 
+
 def day_night_plot(df_all, df_interpol, varname1, varname2, figure_name):
              
     day = df_interpol.sza<70
