@@ -71,67 +71,87 @@ def load_promice(path_promice):
     df_pro['RelativeHumidity_w'] = RH_ice2water(df_pro['RelativeHumidity(%)'] ,
                                                        df_pro['AirTemperature(C)'])
     return df_pro
-#%% 
-def plot_comp(df_all, df_interpol, varname1, varname2, varname3,txt2, figure_name):
-    fig, ax = plt.subplots(np.size(varname1),2,
-                           figsize=(13, 3*np.size(varname1)),
-                           gridspec_kw={'width_ratios': [3, 1]})
-    fig.subplots_adjust(hspace=0.6, wspace=0.02+0.1/np.size(varname1))
-    for i in range(np.size(varname1)):
-        j = 0
-        # ax[i, j].plot(df_all.index, df_all[varname1[i]],
-        #               'bo--',label=varname1[i] + ' before')
-        ax[i, j].plot(df_interpol.index, df_interpol[varname1[i]],
-                      'b',label= 'GC-Net')
-        # ax[i, j].plot(df_all.index, df_all[varname2[i]],
-        #               'ro--',label=varname2[i] + ' before')
-        ax[i, j].plot(df_interpol.index, df_interpol[varname2[i]],
-                      'r',label=txt2,alpha=0.7)
-        ax[i, j].legend()
-        ax[i, j].set_ylabel(varname3[i])
-        
-        x=df_interpol[varname1[i]].values
-        y =df_interpol[varname2[i]].values
-        x2=x[~np.isnan(y)&~np.isnan(x)]
-        y2=y[~np.isnan(y)&~np.isnan(x)]
-        
-        j = 1
-        ax[i, j].scatter(df_interpol[varname1[i]],df_interpol[varname2[i]])
-        min_val = np.nanmin(np.minimum(df_interpol[varname1[i]],df_interpol[varname2[i]]).values)
-        max_val = np.nanmax(np.maximum(df_interpol[varname1[i]],df_interpol[varname2[i]]).values)
-        ax[i, j].plot([min_val, max_val], [min_val, max_val], 'k--',linewidth=4)
-        ax[i, j].set_title(varname3[i])
-        if len(x2)>0:
-            ax[i, j].annotate('R2=%.3f \nRMSE=%.2f \nME=%.2f \nN=%.0f' % (r2_score(x2,y2),
-                                                          mean_squared_error(x2,y2),
-                                                          np.nanmean(x2-y2),
-                                                          len(x2)),
-                            xy=(1.1, 0.5), xycoords='axes fraction',
-                            xytext=(0, 0), textcoords='offset pixels',
-                            horizontalalignment='left',
-                            verticalalignment='center',
-                            fontsize=14)
-        ax[i, j].set_xlabel(' GC-Net')
-        ax[i, j].set_ylabel( txt2)
-        ax[i, j].set_aspect('equal')
-    fig.savefig('./Output/'+figure_name+'.png',bbox_inches='tight', dpi=200)
+
+
+def plot_comp(df_gc, df_sec, varname1, varname2, varname3,txt2, figure_name):
+    # going through the var names and checking that they are in both datasets
+    i_remove = []
+    for i in range(len(varname1)):
+        if varname1[i] not in df_gc.columns:
+            print(varname1[i], 'not in L1 dataset')
+            i_remove.append(i)
+        if varname2[i] not in df_sec.columns:
+            print(varname2[i], 'not in secondary dataset')
+            if '_l' in varname2[i]:
+                varname2[i] = varname2[i].replace('_l','_u')
+
+            if varname2[i] in df_sec.columns:
+                print('only one level available for', txt2)
+            else:
+                i_remove.append(i)
+    varname1 = [var for i, var in enumerate(varname1) if i not in i_remove]
+    varname2 = [var for i, var in enumerate(varname2) if i not in i_remove]
+    varname3 = [var for i, var in enumerate(varname3) if i not in i_remove]            
     
-#%% 
-def tab_comp(df_all, df_interpol, varname1, varname2, filename):
+    if len(varname1)>0:     
+        fig, ax = plt.subplots(np.size(varname1),2,
+                               figsize=(13, 3*np.size(varname1)),
+                               gridspec_kw={'width_ratios': [2.5, 1]})
+        fig.subplots_adjust(left=0.1, hspace=0.6, wspace=0.05)
+        for i in range(np.size(varname1)):
+            j = 0
+            
+            ax[i, j].plot(df_gc.index, df_gc[varname1[i]], 'b',label= 'GC-Net')
+            ax[i, j].plot(df_sec.index, df_sec[varname2[i]], 'r', label=txt2, alpha=0.7)
+            ax[i, j].legend()
+            ax[i, j].set_ylabel(varname3[i])
+            ax[i, j].grid()
+            
+            x=df_gc[varname1[i]].values
+            y =df_sec[varname2[i]].values
+            x2=x[~np.isnan(y)&~np.isnan(x)]
+            y2=y[~np.isnan(y)&~np.isnan(x)]
+            
+            j = 1
+            ax[i, j].scatter(df_gc[varname1[i]],df_sec[varname2[i]])
+            min_val = np.nanmin(np.minimum(df_gc[varname1[i]],df_sec[varname2[i]]).values)
+            max_val = np.nanmax(np.maximum(df_gc[varname1[i]],df_sec[varname2[i]]).values)
+            ax[i, j].plot([min_val, max_val], [min_val, max_val], 'k--',linewidth=4)
+            ax[i, j].set_title(varname3[i])
+            if len(x2)>0:
+                ax[i, j].annotate('R2=%.3f \nRMSE=%.2f \nME=%.2f \nN=%.0f' % (r2_score(x2,y2),
+                                                              np.sqrt(mean_squared_error(x2,y2)),
+                                                              np.nanmean(x2-y2),
+                                                              len(x2)),
+                                xy=(1.1, 0.5), xycoords='axes fraction',
+                                xytext=(0, 0), textcoords='offset pixels',
+                                horizontalalignment='left',
+                                verticalalignment='center',
+                                fontsize=14)
+            ax[i, j].set_xlabel(' GC-Net')
+            ax[i, j].set_ylabel( txt2)
+            ax[i, j].set_aspect('equal')
+            ax[i, j].grid()
+    
+        fig.savefig('./out/L1_vs_other_AWS/'+figure_name+'.png',bbox_inches='tight', dpi=200)
+    
+
+ 
+def tab_comp(df_gc, df_sec, varname1, varname2, filename):
     df = pd.DataFrame(columns=varname1)
     df['metric'] = ['RMSE', 'bias', 'R2', 'N', 'RMSE', 'bias', 'R2', 'N', 'RMSE', 'bias', 'R2', 'N']
     df['time'] = ['all', 'all', 'all', 'all', 'night', 'night', 'night', 'night', 'day',  'day',  'day',  'day']
     df.set_index(['metric','time'],inplace=True)
     
-    sza=df_interpol['sza']
+    sza=df_sec['sza']
 
     day = sza<70
     night = sza > 110
         
     for i in range(np.size(varname1)):
         
-        x=df_interpol[varname1[i]].values
-        y =df_interpol[varname2[i]].values
+        x=df_sec[varname1[i]].values
+        y =df_sec[varname2[i]].values
         x2=x[~np.isnan(y)&~np.isnan(x)]
         y2=y[~np.isnan(y)&~np.isnan(x)]
         
@@ -141,8 +161,8 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
         df.loc[('N','all'),varname1[i]] = len(x2)
              
 
-        x=df_interpol.loc[night,varname1[i]].values
-        y =df_interpol.loc[night,varname2[i]].values
+        x=df_sec.loc[night,varname1[i]].values
+        y =df_sec.loc[night,varname2[i]].values
         x2=x[~np.isnan(y)&~np.isnan(x)]
         y2=y[~np.isnan(y)&~np.isnan(x)]
         
@@ -151,8 +171,8 @@ def tab_comp(df_all, df_interpol, varname1, varname2, filename):
         df.loc[('RMSE','night'),varname1[i]] = mean_squared_error(x2,y2)
         df.loc[('N','night'),varname1[i]] = len(x2)
         
-        x = df_interpol.loc[day,varname1[i]].values
-        y = df_interpol.loc[day,varname2[i]].values
+        x = df_sec.loc[day,varname1[i]].values
+        y = df_sec.loc[day,varname2[i]].values
         x2=x[~np.isnan(y)&~np.isnan(x)]
         y2=y[~np.isnan(y)&~np.isnan(x)]
         

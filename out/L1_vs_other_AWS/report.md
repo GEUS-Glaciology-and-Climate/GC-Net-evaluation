@@ -1,0 +1,55 @@
+
+# 1 Swiss Camp
+![](out/L1_vs_other_AWS/SwissCamp_1.png)
+![](out/L1_vs_other_AWS/SwissCamp_2.png)
+![](out/L1_vs_other_AWS/SwissCamp_3.png)
+![](out/L1_vs_other_AWS/SwissCamp_4.png)
+![](out/L1_vs_other_AWS/SwissCamp_5.png)
+# 3 NASA-U
+![](out/L1_vs_other_AWS/NASA-U_1.png)
+![](out/L1_vs_other_AWS/NASA-U_2.png)
+![](out/L1_vs_other_AWS/NASA-U_3.png)
+![](out/L1_vs_other_AWS/NASA-U_4.png)
+![](out/L1_vs_other_AWS/NASA-U_5.png)
+# 12 NASA-E
+![](out/L1_vs_other_AWS/NASA-E_1.png)
+![](out/L1_vs_other_AWS/NASA-E_2.png)
+![](out/L1_vs_other_AWS/NASA-E_3.png)
+![](out/L1_vs_other_AWS/NASA-E_4.png)
+![](out/L1_vs_other_AWS/NASA-E_5.png)
+# 4 GITS
+![](out/L1_vs_other_AWS/GITS_1.png)
+![](out/L1_vs_other_AWS/GITS_2.png)
+![](out/L1_vs_other_AWS/GITS_3.png)
+![](out/L1_vs_other_AWS/GITS_4.png)
+![](out/L1_vs_other_AWS/GITS_5.png)
+# 23 NEEM
+![](out/L1_vs_other_AWS/NEEM_1.png)
+![](out/L1_vs_other_AWS/NEEM_2.png)
+![](out/L1_vs_other_AWS/NEEM_3.png)
+![](out/L1_vs_other_AWS/NEEM_4.png)
+![](out/L1_vs_other_AWS/NEEM_5.png)
+# 24 E-GRIP
+![](out/L1_vs_other_AWS/E-GRIP_1.png)
+![](out/L1_vs_other_AWS/E-GRIP_2.png)
+![](out/L1_vs_other_AWS/E-GRIP_3.png)
+![](out/L1_vs_other_AWS/E-GRIP_4.png)
+![](out/L1_vs_other_AWS/E-GRIP_5.png)
+# 10 Saddle
+![](out/L1_vs_other_AWS/Saddle_1.png)
+![](out/L1_vs_other_AWS/Saddle_2.png)
+![](out/L1_vs_other_AWS/Saddle_3.png)
+![](out/L1_vs_other_AWS/Saddle_4.png)
+![](out/L1_vs_other_AWS/Saddle_5.png)
+# 8 DYE2
+![](out/L1_vs_other_AWS/DYE2_1.png)
+![](out/L1_vs_other_AWS/DYE2_2.png)
+![](out/L1_vs_other_AWS/DYE2_3.png)
+![](out/L1_vs_other_AWS/DYE2_4.png)
+![](out/L1_vs_other_AWS/DYE2_5.png)
+# 6 Summit
+![](out/L1_vs_other_AWS/Summit_1.png)
+![](out/L1_vs_other_AWS/Summit_2.png)
+![](out/L1_vs_other_AWS/Summit_3.png)
+![](out/L1_vs_other_AWS/Summit_4.png)
+![](out/L1_vs_other_AWS/Summit_5.png)
