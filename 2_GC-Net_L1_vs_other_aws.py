@@ -141,8 +141,8 @@ for site in ['Swiss Camp', 'NASA-U',  'GITS', 'NEEM','E-GRIP','Saddle', 'Summit'
         # gnl.tab_comp(df_gc, df_sec, varname1, varname2, 'out/stat_'+site+'_'+name_sec)
         del df_sec
 
-    for i in range(1,6):
-        f.write('\n![]('+name_sec+'_'+str(i)+'.png)')
+        for i in range(1,6):
+            f.write('\n![]('+name_sec+'_'+str(i)+'.png)')
 
 f.close()
 
