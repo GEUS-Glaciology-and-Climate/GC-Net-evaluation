@@ -39,7 +39,7 @@ plt.close('all')
 f = open("out/L1_vs_other_AWS/report.md", "w")
 # 'Swiss Camp', 'NASA-U','GITS','NEEM','E-GRIP','Saddle', 'Summit','DYE2',
 
-for site in ['E-GRIP']: #'Swiss Camp', 'NASA-U',  'GITS', 'NEEM','E-GRIP','Saddle', 'Summit', 'DYE2']:
+for site in ['Swiss Camp', 'NASA-U',  'GITS', 'NEEM','E-GRIP','Saddle', 'Summit', 'DYE2']:
     ID = site_list.loc[site_list.Name==site, 'ID'].iloc[0]
     print(site)
     f.write('\n# '+str(ID)+ ' ' + site)
@@ -142,7 +142,7 @@ for site in ['E-GRIP']: #'Swiss Camp', 'NASA-U',  'GITS', 'NEEM','E-GRIP','Saddl
         del df_sec
 
     for i in range(1,6):
-        f.write('\n![](out/L1_vs_other_AWS/'+name_sec+'_'+str(i)+'.png)')
+        f.write('\n![]('+name_sec+'_'+str(i)+'.png)')
 
 f.close()
 
