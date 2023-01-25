@@ -13,7 +13,7 @@ import numpy as np
 import nead
 from os import path
 from jaws_tools import extrapolate_temp
-path_to_L1 = '../GC-Net-Level-1-data-processing/'
+path_to_L1 = '../GC-Net-level-1-data-processing/'
 
 # %% L1 temperature climatology
 plt.close("all")
