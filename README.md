@@ -13,7 +13,15 @@ Scripts for the evaluation of the Greenland Climate Network (GC-Net) Automatic W
 4) [against RACMO2.3p2 (scripts only)](https://github.com/GEUS-Glaciology-and-Climate/GC-Net-evaluation/blob/master/GC-Net-evaluation_vs_RACMO.py)
 5) [against Vandecrux JoG2020 data](https://github.com/GEUS-Glaciology-and-Climate/GC-Net-evaluation/blob/master/GC-Net_L1_vs_JoG_data.py)
 
-## Data used for this evaluation:
+## The GC-Net Lavel 1 dataset:
+
+Steffen, Konrad; Vandecrux, Baptiste; Houtz, Derek; Abdalati, Waleed; Bayou, Nicolas; Box, Jason; Colgan, Liam; Espona Pernas, Lucia; Griessinger, Nena; Haas-Artho, Dominik; Heilig, Achim; Hubert, Alain; Iosifescu Enescu, Ionut; Johnson-Amin, Nighat; Karlsson, Nanna B.; Kurup, Rebecca; McGrath, Daniel; Naderpour, Reza; Pederson, Allan Ø.; Perren, Bianca; Philipps, Thomas; Plattner, Gian-Kasper; Proksch, Martin; Revheim, Maiken K.; Særrelse, Martina; Schneebli, Martin; Sampson, Kevin; Starkweather, Sandy; Steffen, Simon; Stroeve, Julienne; Watler, Benjamin; Winton, Øyvind A.; Zwally, Jay; Ahlstrøm, Andreas, 2022, "GC-Net Level 1 automated weather station data", https://doi.org/10.22008/FK2/VVXGUT, GEUS Dataverse, V2 
+
+as processed by:
+
+Vandecrux, B., Box, J., Houtz, D., & Revheim, M. K. The GC-Net level 1 dataset and processing scripts (Version 1) [Computer software]. https://github.com/GEUS-Glaciology-and-Climate/GC-Net-level-1-data-processing
+
+## Other data used for this evaluation:
 Please fetch the data from the original sources.
 
 Covi, F., Regine Hock, Asa Rennermalm, Sasha Leidman, Clement Miege, et al. 2022. Meteorological and firn temperature data from three weather stations in the percolation zone of southwest Greenland, 2017 - 2019. Arctic Data Center. https://doi.org/10.18739/A2BN9X444. 
