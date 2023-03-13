@@ -16,7 +16,7 @@ Scritpts for the evaluation of the Greenland Climate Network (GC-Net) Automatic 
 ## Data used for this evaluation:
 Please fetch the data from the original sources.
 
-Covi, F., Regine Hock, Asa Rennermalm, Sasha Leidman, Clement Miege, et al. 2022. Meteorological and firn temperature data from three weather stations in the percolation zone of southwest Greenland, 2017 - 2019. Arctic Data Center. doi:10.18739/A2BN9X444. 
+Covi, F., Regine Hock, Asa Rennermalm, Sasha Leidman, Clement Miege, et al. 2022. Meteorological and firn temperature data from three weather stations in the percolation zone of southwest Greenland, 2017 - 2019. Arctic Data Center. https://doi.org/10.18739/A2BN9X444. 
 
 Marshall, Shawn; Samimi, Samira, 2020, "Meteorological and Firn data from DYE-2, Greenland Ice Sheet, Summer 2016", https://doi.org/10.5683/SP2/2QY39K, Borealis, V1, UNF:6:rFNKr7oG8evt4VLoYP+uyA== [fileUNF] 
 
@@ -28,4 +28,4 @@ Penelope How; Kenneth D. Mankoff; Patrick J. Wright; Baptiste Vandecrux; Andreas
 
 Penelope How; Kenneth D. Mankoff; Patrick J. Wright; Baptiste Vandecrux; Andreas P. Ahlstrøm; Robert S. Fausto, 2022, "AWS two boom mast Edition 1", https://doi.org/10.22008/FK2/GNYFUK, GEUS Dataverse, V4 
 
-Vandecrux, B., Fausto, R., Van As, D., Colgan, W., Langen, P., Haubner, K., . . . Box, J. (2020). Firn cold content evolution at nine sites on the Greenland ice sheet between 1998 and 2017. Journal of Glaciology, 66(258), 591-602. doi:10.1017/jog.2020.30
+Vandecrux, B., Fausto, R., Van As, D., Colgan, W., Langen, P., Haubner, K., . . . Box, J. (2020). Firn cold content evolution at nine sites on the Greenland ice sheet between 1998 and 2017. Journal of Glaciology, 66(258), 591-602. https://doi.org/10.1017/jog.2020.30
