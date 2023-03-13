@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7728939.svg)](https://doi.org/10.5281/zenodo.7728939)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7728938.svg)](https://doi.org/10.5281/zenodo.7728938)
 
 # GC-Net-evaluation
 
