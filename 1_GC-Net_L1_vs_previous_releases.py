@@ -12,7 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import gcnet_lib as gnl
 import sunposition as sunpos
-from windrose import WindroseAxes
+# from windrose import WindroseAxes
 import nead
 np.seterr(invalid='ignore')
 import warnings
@@ -82,3 +82,54 @@ for site, ID in zip(site_list.Name,site_list.ID):
 f.close()
 
 tocgen.processFile('out/L1_vs_historical_files/report.md','out/L1_vs_historical_files/report_toc.md')
+
+# %% Comparing different file versions
+site_list = pd.read_csv('Input/GC-Net_location.csv',header=0,skipinitialspace=True)[-3:]
+path_to_L1 =  '../GC-Net-Level-1-data-processing/L1/'
+meta = pd.read_csv('Input/GC-Net LAR stations/C-Level Format.csv',skipinitialspace=True)
+aliases = {'LAR'+str(i): 'Larsen'+str(i) for i in range(1,4)}
+plt.close('all')
+
+for site, ID in zip(site_list.Name,site_list.ID):
+    print(site)
+
+    df_L1 = nead.read(path_to_L1 + '%0.2i-%s.csv'%(ID, site)).to_dataframe()
+    df_L1.timestamp = pd.to_datetime(df_L1.timestamp,utc=True)
+    df_L1 = df_L1.set_index('timestamp')
+    df_L1[df_L1==-999] = np.nan
+    
+    path_to_hist_data = 'Input/GC-Net LAR stations/'
+    df_lar = pd.read_csv(path_to_hist_data+aliases[site]+'.csv', header=None)
+    df_lar.columns = meta.Parameter
+    df_lar['hour'] =np.round(( df_lar.doy - np.trunc(df_lar.doy))*24)
+    df_lar.doy = np.trunc(df_lar.doy)
+    df_lar['timestamp'] = pd.to_datetime(df_lar.Year*100000+df_lar.doy*100+df_lar.hour, format='%Y%j%H',utc=True)
+    df_lar = df_lar.set_index('timestamp')
+
+    fig, ax = plt.subplots(8,1, figsize=(10,20),sharex=True)
+    plt.subplots_adjust(top=0.95)
+    for i, var in enumerate(['RH1_cor','RH2_cor','TA1','TA2','P','ISWR','OSWR', 'Alb']):
+    # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
+        df_L1[var].plot(ax=ax[i], label = 'L1')
+        df_lar[var].plot(ax=ax[i], label = 'hist', alpha=0.7)
+        ax[i].set_ylabel(var)
+        if i<len(ax)-1:
+            ax[i].xaxis.set_ticklabels([])
+        if var in  ['ISWR', 'OSWR']:
+            print(site, var, (df_lar[var]/df_L1[var]).median())
+    plt.legend()
+    plt.suptitle(site)
+    fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
+    
+    fig, ax = plt.subplots(8,1, figsize=(10,20))
+    plt.subplots_adjust(top=0.95)
+    for i, var in enumerate(['TA3','TA4','VW1','VW2','DW1','DW2','HS1', 'HS2']):
+        df_L1[var].plot(ax=ax[i], label = 'L1')
+        df_lar[var].plot(ax=ax[i], label = 'hist', alpha=0.7)
+        ax[i].set_ylabel(var)
+        if i<len(ax)-1:
+            ax[i].xaxis.set_ticklabels([])
+    plt.legend()
+    plt.suptitle(site)
+    fig.savefig('out/L1_vs_historical_files/'+site+'_2.png')
+    

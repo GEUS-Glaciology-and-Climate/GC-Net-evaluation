@@ -1,0 +1,53 @@
+﻿Channel, Parameter, Notes, Units, 
+1, LoggerID, 01…23, ‐, ‐
+2, Year, Year, ‐, ‐
+3, doy, Julian Day, ‐, ‐
+4, ISWR, Incoming Radiation, [W mˉ²], Average
+5, OSWR, Outcoming radiation, [W mˉ²], Average
+6, NR, Net Radiation, [W mˉ²], Average
+7, TA1, Air Temp. from Thermocouple, [°C], Average
+8, TA2, Air Temp. from Thermocouple, [°C], Average
+9, TA3, Air Temp. from Vaisala HMP 45, [°C], Average
+10, TA4, Air Temp. from Vaisala HMP 45, [°C], Average
+11, RH1_cor, Relative Humidity from Vaisala HMP 45, [%], Average
+12, RH2_cor, Relative Humidity from Vaisala HMP 45, [%], Average
+13, VW1, Wind Speed, [m sˉ¹], Average
+14, VW2, Wind Speed, [m sˉ¹], Average
+15, DW1, Wind Direction, [degrees], Average
+16, DW2, Wind Direction, [degrees], Average
+17, P, Atmospheric Pressure, [mbar], Average
+18, HS1, Accumulated Snow Depth, [m], Average
+19, HS2, Accumulated Snow Depth, [m], Average
+20, TS1, Snow Temp. from Thermocouple, [°C], Average
+21, TS2, Snow Temp. from Thermocouple, [°C], Average
+22, TS3, Snow Temp. from Thermocouple, [°C], Average
+23, TS4, Snow Temp. from Thermocouple, [°C], Average
+24, TS5, Snow Temp. from Thermocouple, [°C], Average
+25, TS6, Snow Temp. from Thermocouple, [°C], Average
+26, TS7, Snow Temp. from Thermocouple, [°C], Average
+27, TS8, Snow Temp. from Thermocouple, [°C], Average
+28, TS9, Snow Temp. from Thermocouple, [°C], Average
+29, TS10, Snow Temp. from Thermocouple, [°C], Average
+30, V, Battery Voltage, [Vdc], Sample
+31, SW↓, SW Incoming Radiation, [W mˉ²], Maximum
+32, SW↑, SW Reflected Radiation, [W mˉ²], Minimum
+33, Net Radiation, Net Radiation, [W mˉ²], Maximum
+34, TC Air 01, Air Temp. from Thermocouple, [°C], Maximum
+35, TC Air 02, Air Temp. from Thermocouple, [°C], Maximum
+36, TC Air 01, Air Temp. from Thermocouple, [°C], Minimum
+37, TC Air 02, Air Temp. from Thermocouple, [°C], Minimum
+38, U 01, Wind Speed, [m sˉ¹], Maximum
+39, U 02, Wind Speed, [m sˉ¹], Maximum
+40, U 01, Wind Speed, [m sˉ¹], Std. Dev.
+41, U 02, Wind Speed, [m sˉ¹], Std. Dev.
+42, T5, Reference Temperature, [°C], Average
+43, VW_2m, 2m above surface wind speed, [m sˉ¹], Calc.
+44, VW_10m, 10m above surface wind speed, [m sˉ¹], Calc.
+45, HW1, Height of Wind instrument #1, [m], Calc.
+46, HW2, Height of Wind instrument #2, [m], Calc.
+47, Alb, Albedo, ‐, Calc.
+48, SZA, Zenith Angle, Degrees, Calc.
+49, QC identifier 1, , , 
+50, QC identifier 2, , , 
+51, QC identifier 3, , , 
+52, QC identifier 4, , , 
