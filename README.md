@@ -6,7 +6,7 @@ Contributions from: N. Karlson, J. E. Box, P. Wright.
 
 ## Description
 
-Scritpts for the evaluation of the Greenland Climate Network (GC-Net) Automatic Weather Stations level 1 dataset:
+Scripts for the evaluation of the Greenland Climate Network (GC-Net) Automatic Weather Stations level 1 dataset:
 1) [against the last files distributed by K. Steffen](https://github.com/GEUS-Glaciology-and-Climate/GC-Net-evaluation/blob/master/out/L1_vs_historical_files/report_toc.md)
 2) [against other weather stations](https://github.com/GEUS-Glaciology-and-Climate/GC-Net-evaluation/blob/master/out/L1_vs_other_AWS/report_toc.md)
 3) [climatology plots](https://github.com/GEUS-Glaciology-and-Climate/GC-Net-evaluation/tree/master/out/L1_climatologies)
