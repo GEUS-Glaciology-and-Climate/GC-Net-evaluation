@@ -17,21 +17,22 @@ path_to_L1 = '../GC-Net-level-1-data-processing/'
 
 # %% L1 temperature climatology
 plt.close("all")
-site_list = pd.read_csv(path_to_L1 + "metadata/GC-Net_location.csv", header=0,skipinitialspace=(True)).iloc[1:]
+site_list = pd.read_csv(path_to_L1 + "metadata/GC-Net_location.csv", header=0,skipinitialspace=(True)).iloc[1:25]
 
-fig, ax = plt.subplots(4, 5, figsize=(8, 6))
+fig, ax = plt.subplots(4, 4, figsize=(8, 6))
 plt.subplots_adjust(
-    left=0.08, right=0.99, bottom=0.09, top=0.95, hspace=0.15, wspace=0.03
+    left=0.08, right=0.99, bottom=0.09, top=0.9, hspace=0.15, wspace=0.03
 )
 ax = ax.flatten()
 i = -1
-
+ABC = 'ABCDEFGHIJKLMNOPQR'
 for site, ID in zip(site_list.Name, site_list.ID):
-    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + ".csv"
+    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + "_daily.csv"
     if not path.exists(filename):
         # print('Warning: No file for station '+str(ID)+' '+site)
         continue
-    if site in ['CP2','Aurora','KULU','KAR', 'LAR1', 'LAR2', 'LAR3']:
+    if site in ['CP2','Aurora','KULU','KAR','JAR2','JAR3',
+                'NGRIP','Petermann Glacier', 'LAR1', 'LAR2', 'LAR3']:
         # too short for climatology
         continue
     i = i + 1
@@ -43,8 +44,6 @@ for site, ID in zip(site_list.Name, site_list.ID):
     df = df[["TA1", "TA2", "TA3", "TA4", "HW1", "HW2"]]
     df.loc[df.TA1.isnull(), "TA1"] = df.loc[df.TA1.isnull(), "TA3"]
     df.loc[df.TA1.isnull(), "TA2"] = df.loc[df.TA1.isnull(), "TA4"]
-
-    
 
     df["T2m"] = extrapolate_temp(df).values
     df["T"] = df["T2m"]
@@ -70,14 +69,14 @@ for site, ID in zip(site_list.Name, site_list.ID):
         try:
             tmp = df.loc[str(year), :].resample("D").mean()
             doy = tmp.index.dayofyear.values
-            ax[i].plot(doy, tmp["T"].values, color="gray", label=str(year), alpha=0.2)
+            ax[i].plot(doy, tmp["T"].values, color="gray", label='_nolegend_', alpha=0.2)
         except:
             pass
-    climatology.plot(ax=ax[i], color="k", linewidth=3, label="average")
+    climatology.plot(ax=ax[i], color="k", linewidth=2, label="_nolegend_")
     # plt.legend()
-    ax[i].set_title(" " + site, loc="left", y=1.0, pad=-14)
+    ax[i].set_title("  "+ABC[i]+". " + site, loc="left", y=1.0, pad=-14)
     ax[i].set_xlim(0, 365)
-    ax[i].set_ylim(-65, 15)
+    ax[i].set_ylim(-65, 20)
     ax[i].set_xlabel("")
     if i < 12:
         ax[i].set_xticklabels("")
@@ -94,25 +93,28 @@ fig.text(
     va="center",
     rotation="vertical",
 )
+ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
+ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
+ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_temperature", bbox_inches="tight")
 
 # %% L1 humidity climatology
 plt.close("all")
 
-fig, ax = plt.subplots(4, 5, figsize=(8, 6))
+fig, ax = plt.subplots(4, 4, figsize=(8, 6))
 plt.subplots_adjust(
-    left=0.08, right=0.99, bottom=0.09, top=0.95, hspace=0.15, wspace=0.03
+    left=0.08, right=0.99, bottom=0.09, top=0.9, hspace=0.15, wspace=0.03
 )
 ax = ax.flatten()
 i = -1
 
 for site, ID in zip(site_list.Name, site_list.ID):
-    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + ".csv"
+    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + "_daily.csv"
     if not path.exists(filename):
         # print('Warning: No file for station '+str(ID)+' '+site)
         continue
-    if site in ['CP2','Aurora','KULU','KAR', 'LAR1', 'LAR2', 'LAR3']:
-        # too short for climatology
+    if site in ['CP2','Aurora','KULU','KAR','JAR2','JAR3',
+                'NGRIP','Petermann Glacier', 'LAR1', 'LAR2', 'LAR3']:        # too short for climatology
         continue
     i = i + 1
     ds = nead.read(filename)
@@ -145,12 +147,12 @@ for site, ID in zip(site_list.Name, site_list.ID):
         try:
             tmp = df.loc[str(year), :].resample("D").mean()
             doy = tmp.index.dayofyear.values
-            ax[i].plot(doy, tmp["RH"].values, color="gray", label=str(year), alpha=0.2)
+            ax[i].plot(doy, tmp["RH"].values, color="gray", label="_nolegend_", alpha=0.2)
         except:
             pass
-    climatology.plot(ax=ax[i], color="k", linewidth=3, label="average")
+    climatology.plot(ax=ax[i], color="k", linewidth=2, label="_nolegend_")
     # plt.legend()
-    ax[i].set_title(" " + site, loc="left", y=0.0, pad=5)
+    ax[i].set_title("  "+ABC[i]+". " + site, loc="left", y=0.0, pad=5)
     ax[i].set_xlim(0, 365)
     ax[i].set_ylim(30, 100)
     ax[i].set_xlabel("")
@@ -169,24 +171,28 @@ fig.text(
     va="center",
     rotation="vertical",
 )
+ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
+ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
+ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_humidity", bbox_inches="tight")
 
 # %% L1 pressure climatology
 plt.close("all")
 
-fig, ax = plt.subplots(4, 5, figsize=(8, 6))
+fig, ax = plt.subplots(4, 4, figsize=(8, 6))
 plt.subplots_adjust(
-    left=0.08, right=0.99, bottom=0.09, top=0.95, hspace=0.15, wspace=0.03
+    left=0.08, right=0.99, bottom=0.09, top=0.9, hspace=0.15, wspace=0.03
 )
 ax = ax.flatten()
 i = -1
 
 for site, ID in zip(site_list.Name, site_list.ID):
-    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + ".csv"
+    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + "_daily.csv"
     if not path.exists(filename):
         # print('Warning: No file for station '+str(ID)+' '+site)
         continue
-    if site in ['CP2','Aurora','KULU','KAR', 'LAR1', 'LAR2', 'LAR3']:
+    if site in ['CP2','Aurora','KULU','KAR','JAR2','JAR3',
+                'NGRIP','Petermann Glacier', 'LAR1', 'LAR2', 'LAR3']:
         # too short for climatology
         continue
     i = i + 1
@@ -217,15 +223,15 @@ for site, ID in zip(site_list.Name, site_list.ID):
         try:
             tmp = df.loc[str(year), :].resample("D").mean()
             doy = tmp.index.dayofyear.values
-            ax[i].plot(doy, tmp["P"].values, color="gray", label=str(year), alpha=0.2)
+            ax[i].plot(doy, tmp["P"].values, color="gray", label="_nolegend_", alpha=0.2)
         except:
             pass
-    climatology.plot(ax=ax[i], color="k", linewidth=3, label="average")
+    climatology.plot(ax=ax[i], color="k", linewidth=2, label="_nolegend_")
     # plt.legend()
     if site == "Summit":
-        ax[i].set_title(" " + site, loc="left", y=1.0, pad=-14)
+        ax[i].set_title("  "+ABC[i]+". " + site, loc="left", y=1.0, pad=-14)
     else:
-        ax[i].set_title(" " + site, loc="left", y=0.0, pad=5)
+        ax[i].set_title("  "+ABC[i]+". " + site, loc="left", y=0.0, pad=5)
     ax[i].set_xlim(0, 365)
     ax[i].set_ylim(600, 950)
     ax[i].set_xlabel("")
@@ -244,24 +250,28 @@ fig.text(
     va="center",
     rotation="vertical",
 )
+ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
+ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
+ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_pressure", bbox_inches="tight")
 
 # %% L1 wind speed climatology
 plt.close("all")
 
-fig, ax = plt.subplots(4, 5, figsize=(8, 6))
+fig, ax = plt.subplots(4, 4, figsize=(8, 6))
 plt.subplots_adjust(
-    left=0.08, right=0.99, bottom=0.09, top=0.95, hspace=0.15, wspace=0.03
+    left=0.08, right=0.99, bottom=0.09, top=0.9, hspace=0.15, wspace=0.03
 )
 ax = ax.flatten()
 i = -1
 
 for site, ID in zip(site_list.Name, site_list.ID):
-    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + ".csv"
+    filename = path_to_L1+"L1/" + str(ID).zfill(2) + "-" + site.replace(" ", "") + "_daily.csv"
     if not path.exists(filename):
         # print('Warning: No file for station '+str(ID)+' '+site)
         continue
-    if site in ['CP2','Aurora','KULU','KAR', 'LAR1', 'LAR2', 'LAR3']:
+    if site in ['CP2','Aurora','KULU','KAR','JAR2','JAR3',
+                'NGRIP','Petermann Glacier', 'LAR1', 'LAR2', 'LAR3']:
         # too short for climatology
         continue
     i = i + 1
@@ -298,13 +308,13 @@ for site, ID in zip(site_list.Name, site_list.ID):
         try:
             tmp = df.loc[str(year), :].resample("D").mean()
             doy = tmp.index.dayofyear.values
-            ax[i].plot(doy, tmp["T"].values, color="gray", label=str(year), alpha=0.2)
+            ax[i].plot(doy, tmp["T"].values, color="gray", label="_nolegend_", alpha=0.2)
         except:
             pass
-    climatology.plot(ax=ax[i], color="k", linewidth=3, label="average")
+    climatology.plot(ax=ax[i], color="k", linewidth=2, label="_nolegend_")
     # plt.legend()
 
-    ax[i].set_title(" " + site, loc="left", y=1.0, pad=-14)
+    ax[i].set_title("  "+ABC[i]+". " + site, loc="left", y=1.0, pad=-14)
     ax[i].set_xlim(0, 365)
     ax[i].set_ylim(0, 30)
     ax[i].set_xlabel("")
@@ -323,4 +333,7 @@ fig.text(
     va="center",
     rotation="vertical",
 )
+ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
+ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
+ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_windspeed", bbox_inches="tight")

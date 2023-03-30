@@ -21,16 +21,17 @@ import matplotlib.dates as mdates
 np.seterr(invalid='ignore')
 warnings.filterwarnings("ignore")
 plt.close('all')
-comp_matrix = np.array([['Swiss Camp', 'SWC'], 
-                ['NASA-U', 'NAU'],
-                ['NASA-E', 'NAE'],
+comp_matrix = np.array([
                 ['GITS', 'CEN'],
                 ['GITS', 'CEN2'],
+                ['Swiss Camp', 'SWC'], 
+                ['NASA-U', 'NAU'],
+                ['NASA-E', 'NAE'],
                 ['NEEM', 'NEM'],
                 ['E-GRIP', 'EGP'],
                 ['Saddle', 'SDL'],
-                ['DYE2', 'U. Calg.'],
-                ['DYE2', 'DY2'],
+                ['DYE-2', 'U. Calg.'],
+                ['DYE-2', 'DY2'],
                 ['Summit', 'DMI'],
                 ['Summit', 'NOAA']])
 
@@ -59,6 +60,9 @@ ylabels = ['Downward shortwave radiation, $Wm^{-2}$',
            'Wind direction 2, $^o$',
            'Latent heat flux, $Wm^{-2}$', 
            'Sensible heat flux, $Wm^{-2}$']
+# var_list1 = [var_list1[12]]
+# var_list2 = [var_list2[12]]
+# ylabels = [ylabels[12]]
 ABC = 'ABCDEFGHIJKL'
 
 print('Variable AWS1 AWS2 ME RMSE')
@@ -77,21 +81,26 @@ for var1, var2, lab in zip(var_list1, var_list2, ylabels):
         df_L1[df_L1==-999] = np.nan
         
         df_gc = df_L1.copy()
-        if os.path.exists('Input/GEUS stations/'+name_sec+'_hour_v01.csv'):
-            df_sec = pd.read_csv('Input/GEUS stations/'+name_sec+'_hour_v01.csv')
+        if os.path.exists('Data/GEUS stations/'+name_sec+'_hour_v01.csv'):
+            df_sec = pd.read_csv('Data/GEUS stations/'+name_sec+'_hour_v01.csv')
+            df_sec['time'] = pd.to_datetime(df_sec.time, utc=True)
+            df_sec = df_sec.set_index('time')
+            df_sec.index = df_sec.index + pd.Timedelta('1H')
+        elif os.path.exists('Data/GEUS stations/'+name_sec+'_hour.csv'):
+            df_sec = pd.read_csv('Data/GEUS stations/'+name_sec+'_hour.csv')
             df_sec['time'] = pd.to_datetime(df_sec.time, utc=True)
             df_sec = df_sec.set_index('time')
             df_sec.index = df_sec.index + pd.Timedelta('1H')
         elif os.path.exists('Input/data_'+site+'_Samira_hour.txt'):
             df_sec = gnl.load_ucalg('Input/data_'+site+'_Samira_hour.txt')
             df_sec.index = df_sec.index + pd.Timedelta('1H')
-        if os.path.exists('Input/GEUS stations/'+name_sec+'_hour.csv'):
-            df_sec = pd.read_csv('Input/GEUS stations/'+name_sec+'_hour.csv')
+        if os.path.exists('Data/GEUS stations/'+name_sec+'_hour.csv'):
+            df_sec = pd.read_csv('Data/GEUS stations/'+name_sec+'_hour.csv')
             df_sec['time'] = pd.to_datetime(df_sec.time, utc=True)
             df_sec = df_sec.set_index('time')
             df_sec.index = df_sec.index + pd.Timedelta('1H')
-        if os.path.exists('./Input/GEUS stations/'+name_sec+'_hour_v04.csv'):
-            df_sec = pd.read_csv('Input/GEUS stations/'+name_sec+'_hour_v04.csv')
+        if os.path.exists('./Data/GEUS stations/'+name_sec+'_hour_v04.csv'):
+            df_sec = pd.read_csv('Data/GEUS stations/'+name_sec+'_hour_v04.csv')
             df_sec['time'] = pd.to_datetime(df_sec.time, utc=True)
             df_sec = df_sec.set_index('time')
             df_sec.index = df_sec.index + pd.Timedelta('1H')
