@@ -79,7 +79,7 @@ def load_dmi():
 
 def load_noaa():
     # data source : https://www.esrl.noaa.gov/gmd/dv/data/?site=SUM
-    path_dir = 'Input/Summit/'
+    path_dir = 'Data/Summit/'
     file_list = [f for f in listdir(path_dir) if isfile(join(path_dir, f))]
     file_list = [s for s in file_list if "met" in s]
     df_sec = pd.DataFrame()

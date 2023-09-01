@@ -60,9 +60,9 @@ ylabels = ['Downward shortwave radiation, $Wm^{-2}$',
            'Wind direction 2, $^o$',
            'Latent heat flux, $Wm^{-2}$', 
            'Sensible heat flux, $Wm^{-2}$']
-# var_list1 = [var_list1[12]]
-# var_list2 = [var_list2[12]]
-# ylabels = [ylabels[12]]
+var_list1 = [var_list1[3]]
+var_list2 = [var_list2[3]]
+ylabels = [ylabels[3]]
 ABC = 'ABCDEFGHIJKL'
 
 print('Variable AWS1 AWS2 ME RMSE')
