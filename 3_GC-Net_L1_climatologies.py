@@ -97,6 +97,7 @@ ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
 ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
 ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_temperature", bbox_inches="tight")
+plt.savefig("out/L1_climatologies/climatology_temperature.pdf", bbox_inches="tight")
 
 # %% L1 wind speed climatology
 plt.close("all")
@@ -177,3 +178,4 @@ ax[0].plot(np.nan,np.nan, color="gray", label='individual years', alpha=0.2)
 ax[0].plot(np.nan,np.nan, color="k", linewidth=2, label="mean")
 ax[0].legend(loc='upper center', bbox_to_anchor=(2,1.4), ncol=2)
 plt.savefig("out/L1_climatologies/climatology_windspeed", bbox_inches="tight")
+plt.savefig("out/L1_climatologies/climatology_windspeed.pdf", bbox_inches="tight")

@@ -33,11 +33,12 @@ comp_matrix = np.array([
                 ['DYE-2', 'U. Calg.'],
                 ['DYE-2', 'DY2'],
                 ['Summit', 'DMI'],
-                ['Summit', 'NOAA']])
+                ['Summit', 'NOAA']
+                ])
 
 # Comparing to GEUS, U.Calg. and NOAA AWS
 site_list = pd.read_csv('Input/GC-Net_location.csv', header=0, skipinitialspace=True)
-path_to_L1 = '../GC-Net-Level-1-data-processing/L1/'
+path_to_L1 = '../GC-Net-Level-1-data-processing/L1/hourly/'
 plt.close('all')
 f = open("out/L1_vs_other_AWS/report.md", "w")
 # 'Swiss Camp', 'NASA-U','GITS','NEEM','E-GRIP','Saddle', 'Summit','DYE2',
@@ -60,9 +61,9 @@ ylabels = ['Downward shortwave radiation, $Wm^{-2}$',
            'Wind direction 2, $^o$',
            'Latent heat flux, $Wm^{-2}$', 
            'Sensible heat flux, $Wm^{-2}$']
-var_list1 = [var_list1[3]]
-var_list2 = [var_list2[3]]
-ylabels = [ylabels[3]]
+# var_list1 = [var_list1[3]]
+# var_list2 = [var_list2[3]]
+# ylabels = [ylabels[3]]
 ABC = 'ABCDEFGHIJKL'
 
 print('Variable AWS1 AWS2 ME RMSE')
@@ -75,7 +76,7 @@ for var1, var2, lab in zip(var_list1, var_list2, ylabels):
         name_sec = comp_matrix[i,1]
         ID = site_list.loc[site_list.Name==site, 'ID'].iloc[0]
         site = site.replace(' ','')
-        df_L1 = nead.read(path_to_L1 + '%0.2i-%s.csv'%(ID, site)).to_dataframe()
+        df_L1 = nead.read(path_to_L1 +site+'.csv').to_dataframe()
         df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
         df_L1 = df_L1.set_index('timestamp')
         df_L1[df_L1==-999] = np.nan
@@ -119,17 +120,13 @@ for var1, var2, lab in zip(var_list1, var_list2, ylabels):
         df_gc = df_gc.loc[slice(df_sec.index[0], df_sec.index[-1]),:]
         df_sec['net_rad'] = df_sec.dsr_cor-df_sec.usr_cor+df_sec.dlr-df_sec.ulr
     
-        if var2 not in df_sec.columns:
-            continue
-        if df_sec[var2].isnull().all():
-            continue
-        if var1 not in df_gc.columns:
-            continue
-        if df_gc[var1].isnull().all():
-            continue
-        if var1 in ['VW1','VW2','DW1','DW2']:
-            if site == 'GITS':
-                continue
+        print(var2)
+        if var2 not in df_sec.columns: continue
+        if df_sec[var2].isnull().all(): continue
+        if var1 not in df_gc.columns: continue
+        if df_gc[var1].isnull().all(): continue
+        if var1 in ['VW1','VW2','DW1','DW2']: 
+            if site == 'GITS': continue
         count = count+1
         ax[count].plot(df_gc[var1], label = 'GC-Net AWS', alpha=0.6, zorder=10)
         ax[count].plot(df_sec[var2], label = 'secondary AWS', alpha=0.8)

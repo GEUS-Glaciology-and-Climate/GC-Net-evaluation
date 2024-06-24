@@ -56,7 +56,7 @@ def load_ucalg(path_promice='Input/data_DYE2_Samira_hour.txt'):
 
 
 def load_dmi():
-    stat_id = '441900'
+    stat_id = '441600'
     path_to_sec = '../../../Data/AWS/DMI/data/'
     DMI_aliases = {'101': 't_u', 
                    '201': 'rh_u', 
@@ -87,7 +87,7 @@ def load_noaa():
         df = pd.read_csv(path_dir+file_list[i], header=None,  delim_whitespace=True)
         df.columns =['site', 'year', 'month', 'day', 'hour', 'wdir_u', 
                         'wspd_u', 'wsf','p_u', 't_l', 't_u', 'ta_top', 'rh_u', 'rf']
-        df_sec = df_sec.append(df)
+        df_sec = pd.concat((df_sec, df), ignore_index=True)
     df_sec[df_sec==-999.0]=np.nan
     df_sec[df_sec==-999.90]=np.nan
     df_sec[df_sec==-999.99]=np.nan
@@ -99,7 +99,7 @@ def load_noaa():
     df_sec.loc['2014-09-27':'2017-07-24','rh_u'] = np.nan
     df_sec.loc[df_sec['rh_u']>120, 'rh_u'] = np.nan
     # df_sec['RH_i'] = gnl.RH_water2ice(df_sec.RH.values, df_sec.TA.values)
-    return df_sec.resample('H').mean()
+    return df_sec
 
 
 def plot_comp(df_gc, df_sec, varname1, varname2, varname3,txt2, figure_name):
