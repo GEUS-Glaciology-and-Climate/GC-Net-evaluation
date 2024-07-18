@@ -36,10 +36,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
     plt.close('all')
     site = site.replace(' ','')
     f.write('\n# '+str(ID)+ ' ' + site)
-    df_L1 = nead.read(path_to_L1 + "/hourly/" + site + ".csv").to_dataframe()
-    df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
-    df_L1 = df_L1.set_index('timestamp')
-    df_L1[df_L1==-999] = np.nan
+
     
     path_to_hist_data = './Data/20190501_jaws/'
     try:
@@ -47,21 +44,29 @@ for site, ID in zip(site_list.Name,site_list.ID):
     except:
         f.write('\nno historical file to compare')
         continue
+
+    df_L1 = nead.read(path_to_L1 + "/hourly/" + site + ".csv").to_dataframe()
+    df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
+    df_L1 = df_L1.set_index('timestamp')
+    df_L1[df_L1==-999] = np.nan
+    
     df_hist_jaws.index = df_hist_jaws.index + pd.Timedelta(minutes=30)
     df_hist_jaws.index = pd.to_datetime(df_hist_jaws.index, utc=True)
     df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] = df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] -273.15
     df_hist_jaws.ps = df_hist_jaws.ps/100
     
     fig, ax = plt.subplots(3,1, figsize=(10,10),sharex=True)
-    plt.subplots_adjust(top=0.95)
+    plt.subplots_adjust(top=0.9)
     for i, var in enumerate(['TA1','TA2','P']):
     # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
-        df_L1[var].plot(ax=ax[i], label = 'L1')
-        df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'hist', alpha=0.7)
+        df_L1[var].plot(ax=ax[i], label = 'reprocessed by GEUS')
+        df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'last provided by K. Steffen', alpha=0.7)
         ax[i].set_ylabel(var)
         if i<len(ax)-1:
             ax[i].xaxis.set_ticklabels([])
-        plt.legend()
+
+    handles, labels = ax[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.7, 1.02))
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
     f.write('\n![]('+site+'_1.png)')
