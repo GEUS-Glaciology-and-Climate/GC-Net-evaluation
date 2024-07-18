@@ -25,7 +25,7 @@ jaws_alias = {'RH1':'rh1','RH2':'rh2','TA1':'ta_tc2','TA2':'ta_tc2','P':'ps',
               'TA3':'ta_cs1','TA4':'ta_cs2','VW1':'wspd1','VW2':'wspd2',
               'DW1':'wdir1','DW2':'wdir1','HS1':'snh1', 'HS2':'snh2'}
 
-# %% Comparing different file versions
+# % Comparing different file versions
 site_list = pd.read_csv('Input/GC-Net_location.csv',header=0)
 path_to_L1 =  '../GC-Net-Level-1-data-processing/L1/'
 
@@ -56,7 +56,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
     df_hist_jaws.ps = df_hist_jaws.ps/100
     
     fig, ax = plt.subplots(3,1, figsize=(10,10),sharex=True)
-    plt.subplots_adjust(top=0.9)
+    plt.subplots_adjust(top=0.93)
     for i, var in enumerate(['TA1','TA2','P']):
     # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
         df_L1[var].plot(ax=ax[i], label = 'reprocessed by GEUS')
@@ -66,7 +66,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
             ax[i].xaxis.set_ticklabels([])
 
     handles, labels = ax[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.7, 1.02))
+    fig.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.92, 1))
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
     f.write('\n![]('+site+'_1.png)')
