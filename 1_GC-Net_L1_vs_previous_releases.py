@@ -52,16 +52,16 @@ for site, ID in zip(site_list.Name,site_list.ID):
     df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] = df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] -273.15
     df_hist_jaws.ps = df_hist_jaws.ps/100
     
-    fig, ax = plt.subplots(7,1, figsize=(10,10),sharex=True)
+    fig, ax = plt.subplots(3,1, figsize=(10,10),sharex=True)
     plt.subplots_adjust(top=0.95)
-    for i, var in enumerate(['TA1','TA2','P','RH1','RH2']):
+    for i, var in enumerate(['TA1','TA2','P']):
     # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
         df_L1[var].plot(ax=ax[i], label = 'L1')
         df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'hist', alpha=0.7)
         ax[i].set_ylabel(var)
         if i<len(ax)-1:
             ax[i].xaxis.set_ticklabels([])
-    plt.legend()
+        plt.legend()
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
     f.write('\n![]('+site+'_1.png)')
