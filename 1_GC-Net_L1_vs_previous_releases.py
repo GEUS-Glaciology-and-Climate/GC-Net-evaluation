@@ -27,41 +27,52 @@ jaws_alias = {'RH1':'rh1','RH2':'rh2','TA1':'ta_tc2','TA2':'ta_tc2','P':'ps',
 
 # % Comparing different file versions
 site_list = pd.read_csv('Input/GC-Net_location.csv',header=0)
-path_to_L1 =  '../GC-Net-Level-1-data-processing/L1/'
+path_to_L1 =  'C:/Users/bav/GitHub/PROMICE data/GC-Net-Level-1-data-processing/L1/'
 
 f = open("out/L1_vs_historical_files/report.md", "w")
+#%
+for site in site_list.Name:
+# for site in ['NASA-SE']:
+    ID = site_list.Name.loc[site_list.Name==site].index.values[0]
 
-for site, ID in zip(site_list.Name,site_list.ID):
     print(site)
     plt.close('all')
     site = site.replace(' ','')
     f.write('\n# '+str(ID)+ ' ' + site)
 
-    
-    path_to_hist_data = './Data/20190501_jaws/'
-    try:
-        df_hist_jaws = xr.open_dataset(path_to_hist_data+'%0.2ic.dat_Req1957.nc'%ID).sel(nbnd=1).squeeze().to_dataframe()
-    except:
-        f.write('\nno historical file to compare')
-        continue
 
-    df_L1 = nead.read(path_to_L1 + "/hourly/" + site + ".csv").to_dataframe()
+    path_to_hist_data = './Data/10102018_jaws/'
+    try:
+        df_hist_jaws = xr.open_dataset(path_to_hist_data+'%0.2ic.dat_Req1828.nc'%ID).sel(nbnd=1).squeeze().to_dataframe()
+    except:
+        try: 
+            path_to_hist_data = './Data/20190501_jaws/'
+            df_hist_jaws = xr.open_dataset(path_to_hist_data+'%0.2ic.dat_Req1957.nc'%ID).sel(nbnd=1).squeeze().to_dataframe()
+        except:
+            f.write('\nno historical file to compare')
+            continue
+
+    df_L1 = nead.read(path_to_L1 + "/daily/" + site + "_daily.csv").to_dataframe()
     df_L1.timestamp = pd.to_datetime(df_L1.timestamp)
     df_L1 = df_L1.set_index('timestamp')
     df_L1[df_L1==-999] = np.nan
-    
+
     df_hist_jaws.index = df_hist_jaws.index + pd.Timedelta(minutes=30)
     df_hist_jaws.index = pd.to_datetime(df_hist_jaws.index, utc=True)
     df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] = df_hist_jaws[[ 'ta_tc1', 'ta_tc2', 'ta_cs1', 'ta_cs2']] -273.15
     df_hist_jaws.ps = df_hist_jaws.ps/100
-    
-    fig, ax = plt.subplots(3,1, figsize=(10,10),sharex=True)
+    df_hist_jaws = df_hist_jaws[['ta_tc1',
+           'ta_tc2', 'ta_cs1', 'ta_cs2', 'rh1', 'rh2', 'wspd1', 'wspd2', 'wdir1',
+           'wdir2', 'ps', 'snh1', 'snh2', 'tsn1', 'tsn2', 'tsn3', 'tsn4', 'tsn5',
+           'tsn6', 'tsn7', 'tsn8', 'tsn9', 'tsn10',]].resample('D').mean()
+    fig, ax = plt.subplots(5,1, figsize=(20,10),sharex=True)
     plt.subplots_adjust(top=0.93)
-    for i, var in enumerate(['TA1','TA2','P']):
+    for i, var in enumerate(['TA1','TA2','P','VW1','VW2',]):
     # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
         df_L1[var].plot(ax=ax[i], label = 'reprocessed by GEUS')
         df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'last provided by K. Steffen', alpha=0.7)
         ax[i].set_ylabel(var)
+        ax[i].grid()
         if i<len(ax)-1:
             ax[i].xaxis.set_ticklabels([])
 
@@ -70,40 +81,41 @@ for site, ID in zip(site_list.Name,site_list.ID):
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
     f.write('\n![]('+site+'_1.png)')
-    
-    # fig, ax = plt.subplots(8,1, figsize=(10,10))
+
+    # fig, ax = plt.subplots(6,1, figsize=(10,10))
     # plt.subplots_adjust(top=0.95)
-    # for i, var in enumerate(['TA3','TA4','VW1','VW2','DW1','DW2','HS1', 'HS2']):
+    # for i, var in enumerate(['TA3','TA4','VW1','VW2','DW1','DW2']):
     #     df_L1[var].plot(ax=ax[i], label = 'L1')
     #     df_hist_jaws[jaws_alias[var]].plot(ax=ax[i], label = 'hist', alpha=0.7)
     #     ax[i].set_ylabel(var)
+    #     ax[i].grid()
     #     if i<len(ax)-1:
     #         ax[i].xaxis.set_ticklabels([])
+            
     # plt.legend()
     # plt.suptitle(site)
     # fig.savefig('out/L1_vs_historical_files/'+site+'_2.png')
     # f.write('\n![](out/L1_vs_historical_files/'+site+'_2.png)')
 
-f.close()
-
+# f.close()
 tocgen.processFile('out/L1_vs_historical_files/report.md','out/L1_vs_historical_files/report_toc.md')
 
 # %% Comparing different file versions
 site_list = pd.read_csv('Input/GC-Net_location.csv',header=0,skipinitialspace=True)[-3:]
-path_to_L1 =  '../GC-Net-Level-1-data-processing/L1/'
-meta = pd.read_csv('Input/GC-Net LAR stations/C-Level Format.csv',skipinitialspace=True)
+path_to_L1 =  'C:/Users/bav/GitHub/PROMICE data/GC-Net-Level-1-data-processing/L1/'
+meta = pd.read_csv('Data/GC-Net LAR stations/C-Level Format.csv',skipinitialspace=True)
 aliases = {'LAR'+str(i): 'Larsen'+str(i) for i in range(1,4)}
 plt.close('all')
 
 for site, ID in zip(site_list.Name,site_list.ID):
     print(site)
 
-    df_L1 = nead.read(path_to_L1 + '%0.2i-%s.csv'%(ID, site)).to_dataframe()
+    df_L1 = nead.read(f'{path_to_L1}/daily/{site}_daily.csv').to_dataframe()
     df_L1.timestamp = pd.to_datetime(df_L1.timestamp,utc=True)
     df_L1 = df_L1.set_index('timestamp')
     df_L1[df_L1==-999] = np.nan
-    
-    path_to_hist_data = 'Input/GC-Net LAR stations/'
+
+    path_to_hist_data = 'Data/GC-Net LAR stations/'
     df_lar = pd.read_csv(path_to_hist_data+aliases[site]+'.csv', header=None)
     df_lar.columns = meta.Parameter
     df_lar['hour'] =np.round(( df_lar.doy - np.trunc(df_lar.doy))*24)
@@ -113,7 +125,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
 
     fig, ax = plt.subplots(8,1, figsize=(10,20),sharex=True)
     plt.subplots_adjust(top=0.95)
-    for i, var in enumerate(['RH1_cor','RH2_cor','TA1','TA2','P','ISWR','OSWR', 'Alb']):
+    for i, var in enumerate(['RH1','RH2','TA1','TA2','P','ISWR','OSWR', 'Alb']):
     # for i, var in enumerate(['ISWR','OSWR', 'SZA']):
         df_L1[var].plot(ax=ax[i], label = 'L1')
         df_lar[var].plot(ax=ax[i], label = 'hist', alpha=0.7)
@@ -125,7 +137,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
     plt.legend()
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site.replace(' ','')+'_1.png')
-    
+
     fig, ax = plt.subplots(8,1, figsize=(10,20))
     plt.subplots_adjust(top=0.95)
     for i, var in enumerate(['TA3','TA4','VW1','VW2','DW1','DW2','HS1', 'HS2']):
@@ -137,4 +149,3 @@ for site, ID in zip(site_list.Name,site_list.ID):
     plt.legend()
     plt.suptitle(site)
     fig.savefig('out/L1_vs_historical_files/'+site+'_2.png')
-    

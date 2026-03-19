@@ -14,7 +14,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 from sklearn.metrics import mean_squared_error, r2_score
-from pytablewriter import MarkdownTableWriter
+# from pytablewriter import MarkdownTableWriter
 import math      
 from matplotlib.patches import Patch
 import pytz
